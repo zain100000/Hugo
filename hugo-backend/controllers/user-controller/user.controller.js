@@ -14,6 +14,9 @@ const {
 const {
   generateSecureToken,
 } = require("../../helpers/token-helper/token.helper");
+const {
+  sendPasswordResetEmail,
+} = require("../../helpers/email-helper/email.helper");
 
 /**
  * @description Controller for user registration
