@@ -19,7 +19,7 @@ cloudinary.config({
 const storage = multer.memoryStorage();
 
 /**
- * @description Allowed image types only
+ * @description Allowed image and video types
  */
 const allowedImageTypes = [
   "image/jpeg",
@@ -28,20 +28,25 @@ const allowedImageTypes = [
   "image/webp",
 ];
 
+const allowedVideoTypes = ["video/mp4", "video/quicktime", "video/x-matroska"];
+
 /**
- * @description File filter to allow only images
+ * @description File filter to allow only images and videos
  */
 const fileFilter = (req, file, cb) => {
   if (!file) {
     return cb(new Error("No file uploaded."), false);
   }
 
-  if (allowedImageTypes.includes(file.mimetype)) {
+  if (
+    allowedImageTypes.includes(file.mimetype) ||
+    allowedVideoTypes.includes(file.mimetype)
+  ) {
     cb(null, true);
   } else {
     cb(
       new Error(
-        "❌ Invalid file type. Only image (JPG, PNG, WEBP) files are allowed."
+        "❌ Invalid file type. Only image (JPG, PNG, WEBP) and video (MP4, MOV, MKV) files are allowed."
       ),
       false
     );
@@ -58,7 +63,11 @@ exports.upload = multer({
   limits: {
     fileSize: 5 * 1024 * 1024,
   },
-}).fields([{ name: "profilePicture", maxCount: 1 }]);
+}).fields([
+  { name: "profilePicture", maxCount: 1 },
+  { name: "mediaImage", maxCount: 5 },
+  { name: "mediaVideo", maxCount: 3 },
+]);
 
 /**
  * @description Middleware to check if files are uploaded
@@ -75,13 +84,40 @@ exports.checkUploadedFiles = (req, res, next) => {
 /**
  * @description Uploads an image buffer to Cloudinary with optional overwrite
  */
-exports.uploadToCloudinary = async (file, type, existingPublicId = null) => {
+exports.uploadToCloudinary = async (
+  file,
+  type,
+  userId = null,
+  existingPublicId = null
+) => {
   const baseFolder = "Hugo";
   let folder = baseFolder;
+  let resourceType = "image";
+  let transformation = {};
 
   switch (type) {
     case "profilePicture":
       folder += "/profilePictures";
+      transformation = {
+        width: 500,
+        height: 500,
+        crop: "fill",
+        quality: "auto",
+      };
+      break;
+    case "mediaImage":
+      if (!userId) {
+        throw new Error("User ID is required for media uploads");
+      }
+      folder += `/Media/${userId}`;
+      transformation = { quality: "auto" };
+      break;
+    case "mediaVideo":
+      if (!userId) {
+        throw new Error("User ID is required for media uploads");
+      }
+      folder += `/Media/${userId}`;
+      resourceType = "video";
       break;
     default:
       throw new Error("Invalid file type");
@@ -95,19 +131,32 @@ exports.uploadToCloudinary = async (file, type, existingPublicId = null) => {
     } else {
       const timestamp = Date.now();
       const randomNum = Math.round(Math.random() * 1e6);
-      public_id = `${folder}/${timestamp}-${randomNum}`;
+
+      if (type === "profilePicture") {
+        public_id = `${folder}/profile_${timestamp}-${randomNum}`;
+      } else if (type === "mediaImage") {
+        public_id = `${folder}/media_image_${timestamp}-${randomNum}`;
+      } else if (type === "mediaVideo") {
+        public_id = `${folder}/media_video_${timestamp}-${randomNum}`;
+      }
     }
 
     const fileBuffer = `data:${file.mimetype};base64,${file.buffer.toString(
       "base64"
     )}`;
 
-    const result = await cloudinary.uploader.upload(fileBuffer, {
+    const uploadOptions = {
       public_id: public_id,
-      resource_type: "image",
+      resource_type: resourceType,
       overwrite: true,
       invalidate: true,
-    });
+    };
+
+    if (resourceType === "image" && Object.keys(transformation).length > 0) {
+      uploadOptions.transformation = transformation;
+    }
+
+    const result = await cloudinary.uploader.upload(fileBuffer, uploadOptions);
 
     return { url: result.secure_url, public_id: result.public_id };
   } catch (error) {
@@ -117,25 +166,37 @@ exports.uploadToCloudinary = async (file, type, existingPublicId = null) => {
 };
 
 /**
- * @description Deletes an image from Cloudinary using its URL or public_id
+ * @description Deletes an image or video from Cloudinary using its URL or public_id
  */
-exports.deleteFromCloudinary = async (fileUrlOrId) => {
+exports.deleteFromCloudinary = async (fileUrlOrId, resourceType = "image") => {
   try {
     let publicId = fileUrlOrId;
 
     if (fileUrlOrId.startsWith("http")) {
-      const matches = fileUrlOrId.match(/\/image\/upload\/(?:v\d+\/)?([^?]+)/);
-      if (!matches || matches.length < 2) {
-        console.error(
-          `❌ Failed to extract public ID from URL: ${fileUrlOrId}`
+      const urlParts = fileUrlOrId.split("/");
+      const publicIdWithExtension = urlParts[urlParts.length - 1];
+      publicId = publicIdWithExtension.split(".")[0];
+
+      const cloudinaryIndex = urlParts.findIndex((part) =>
+        part.includes("cloudinary")
+      );
+      if (cloudinaryIndex !== -1) {
+        const resourceIndex = urlParts.findIndex(
+          (part, index) =>
+            index > cloudinaryIndex && (part === "image" || part === "video")
         );
-        return;
+
+        if (resourceIndex !== -1) {
+          publicId = urlParts
+            .slice(resourceIndex + 1)
+            .join("/")
+            .replace(/\.[^.]+$/, "");
+        }
       }
-      publicId = matches[1].replace(/\.[^.]+$/, "");
     }
 
     const result = await cloudinary.uploader.destroy(publicId, {
-      resource_type: "image",
+      resource_type: resourceType,
     });
 
     if (result.result !== "ok") {

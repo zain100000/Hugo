@@ -16,6 +16,7 @@ const {
 } = require("../../helpers/token-helper/token.helper");
 const {
   sendPasswordResetEmail,
+  sendStatusUpdateEmail,
 } = require("../../helpers/email-helper/email.helper");
 
 /**
@@ -518,9 +519,10 @@ exports.updateUserStatus = async (req, res) => {
     const { status, warningMessage } = req.body;
 
     if (!["ACTIVE", "SUSPENDED", "BANNED", "WARNED"].includes(status)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid status value" });
+      return res.status(400).json({
+        success: false,
+        message: "Invalid status value",
+      });
     }
 
     const user = await User.findById(userId);
@@ -530,22 +532,22 @@ exports.updateUserStatus = async (req, res) => {
         .json({ success: false, message: "User not found" });
     }
 
+    const originalStatus = user.status;
+    let newStatusMessage = "";
+
     if (status === "BANNED") {
       user.status = "BANNED";
       user.isVerified = false;
-    }
-
-    if (status === "SUSPENDED") {
+      newStatusMessage = `User status updated to BANNED`;
+    } else if (status === "SUSPENDED") {
       user.status = "SUSPENDED";
       user.isVerified = false;
-    }
-
-    if (status === "ACTIVE") {
+      newStatusMessage = `User status updated to SUSPENDED`;
+    } else if (status === "ACTIVE") {
       user.status = "ACTIVE";
       user.isVerified = true;
-    }
-
-    if (status === "WARNED") {
+      newStatusMessage = `User status updated to ACTIVE`;
+    } else if (status === "WARNED") {
       if (!warningMessage) {
         return res.status(400).json({
           success: false,
@@ -554,21 +556,29 @@ exports.updateUserStatus = async (req, res) => {
       }
 
       user.warnings.push({ message: warningMessage, date: new Date() });
+      newStatusMessage = `User status updated to WARNED. Total warnings: ${user.warnings.length}`;
 
-      if (user.warnings.length >= 4) {
+      if (user.warnings.length >= 3) {
         user.status = "SUSPENDED";
         user.isVerified = false;
+        newStatusMessage = "User suspended due to exceeding warning limit";
       }
     }
 
     await user.save();
 
+    if (user.status !== originalStatus || status === "WARNED") {
+      await sendStatusUpdateEmail(
+        user.email,
+        user.userName,
+        user.status,
+        warningMessage
+      );
+    }
+
     res.status(201).json({
       success: true,
-      message:
-        status === "WARNED" && user.status === "SUSPENDED"
-          ? "User suspended due to exceeding warning limit"
-          : `User status updated to ${status}`,
+      message: newStatusMessage,
       user,
     });
   } catch (error) {
