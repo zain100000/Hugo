@@ -596,6 +596,7 @@ exports.updateUserStatus = async (req, res) => {
       }
     }
 
+    user.status = "WARNED";
     await user.save();
 
     let responseMessage = "";
