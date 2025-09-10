@@ -64,4 +64,15 @@ router.post(
   superAdminController.logoutSuperAdmin
 );
 
+/**
+ * @description Route to fetch all app users.
+ */
+router.get("/get-all-users", authMiddleware, superAdminController.getAllUsers);
+
+
+/**
+ * @description Route to update user status.
+ */
+router.patch("/user/update-user-status/:userId", authMiddleware, superAdminController.updateUserStatus);
+
 module.exports = router;

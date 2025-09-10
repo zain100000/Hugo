@@ -1,25 +1,3 @@
-/**
- * User Schema
- * @typedef {Object} User
- * @property {string} userName - Unique username for the user (trimmed)
- * @property {string} email - Unique email address for the user (lowercase)
- * @property {string} password - Hashed password for authentication (min 6 characters)
- * @property {string|null} [phone] - Optional unique phone number for the user
- * @property {string} [avatar=""] - URL or path to the user's avatar image
- * @property {string} [bio] - User biography (max 200 characters)
- * @property {string} [gender] - User gender, must be one of: "male", "female", "other"
- * @property {Date} [dob] - User date of birth
- * @property {number} [coins=0] - Virtual currency balance for the user
- * @property {string} [role="user"] - User role, either "user" or "super-admin"
- * @property {boolean} [isVerified=false] - Whether the user's account has been verified
- * @property {boolean} [isSuspended=false] - Whether the user's account is suspended
- * @property {Array.<mongoose.Types.ObjectId>} [followers] - Array of user IDs who follow this user
- * @property {Array.<mongoose.Types.ObjectId>} [following] - Array of user IDs this user follows
- * @property {Array.<mongoose.Types.ObjectId>} [blockedUsers] - Array of user IDs this user has blocked
- * @property {Date} [createdAt] - Date when the user account was created
- * @property {Date} [updatedAt] - Date when the user account was last updated
- */
-
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
@@ -76,16 +54,11 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["USER"],
+      enum: ["USER", "SUPER-ADMIN"],
       default: "USER",
     },
 
     isVerified: {
-      type: Boolean,
-      default: false,
-    },
-
-    isSuspended: {
       type: Boolean,
       default: false,
     },
@@ -110,16 +83,6 @@ const userSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
-
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
-
-    updatedAt: {
-      type: Date,
-      default: Date.now,
-    },
 
     lastLogin: {
       type: Date,
@@ -149,6 +112,39 @@ const userSchema = new mongoose.Schema(
     passwordResetExpires: {
       type: Date,
       default: null,
+    },
+
+    status: {
+      type: String,
+      enum: ["ACTIVE", "SUSPENDED", "BANNED"],
+      default: "ACTIVE",
+    },
+
+    warnings: [
+      {
+        message: String,
+        date: { type: Date, default: Date.now },
+      },
+    ],
+
+    isPhoneVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    phoneVerification: {
+      otp: {
+        type: String,
+        default: null,
+      },
+      expiresAt: {
+        type: Date,
+        default: null,
+      },
+      attempts: {
+        type: Number,
+        default: 0,
+      },
     },
   },
   { timestamps: true }

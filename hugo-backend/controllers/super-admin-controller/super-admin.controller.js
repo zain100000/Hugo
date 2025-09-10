@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const SuperAdmin = require("../../models/super-admin-model/super-admin.model");
+const User = require("../../models/user-model/user.model");
 const {
   uploadToCloudinary,
   deleteFromCloudinary,
@@ -462,5 +463,116 @@ exports.logoutSuperAdmin = async (req, res, next) => {
       success: false,
       message: "Server Error",
     });
+  }
+};
+
+/**
+ * @description Controller to get a list of all users with basic details
+ * @route GET /api/super-admin/get-all-users
+ * @access Private (SuperAdmin)
+ */
+exports.getAllUsers = async (req, res) => {
+  try {
+    if (!req.user || req.user.role !== "SUPERADMIN") {
+      return res
+        .status(403)
+        .json({ success: false, message: "Only super admin can have access" });
+    }
+
+    const users = await User.find()
+      .populate({
+        path: "followers",
+        select: "userName email profilePicture",
+      })
+      .populate({
+        path: "following",
+        select: "userName email profilePicture",
+      })
+      .populate({
+        path: "blockedUsers",
+        select: "userName email profilePicture",
+      })
+      .select("-password -passwordResetToken -passwordResetExpires -sessionId")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: "All users fetched successfully!",
+      allUsers: users,
+      totalUsers: users.length,
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+};
+
+/**
+ * @description Update user status (BAN, SUSPEND, ACTIVATE) or WARN user
+ * @route PATCH /api/super-admin/user/update-user-status/:userId
+ * @access Super Admin
+ */
+exports.updateUserStatus = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { status, warningMessage } = req.body;
+
+    if (!["ACTIVE", "SUSPENDED", "BANNED", "WARNED"].includes(status)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid status value" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    if (status === "BANNED") {
+      user.status = "BANNED";
+      user.isVerified = false;
+    }
+
+    if (status === "SUSPENDED") {
+      user.status = "SUSPENDED";
+      user.isVerified = false;
+    }
+
+    if (status === "ACTIVE") {
+      user.status = "ACTIVE";
+      user.isVerified = true;
+    }
+
+    if (status === "WARNED") {
+      if (!warningMessage) {
+        return res.status(400).json({
+          success: false,
+          message: "Warning message is required for WARNED status",
+        });
+      }
+
+      user.warnings.push({ message: warningMessage, date: new Date() });
+
+      if (user.warnings.length >= 4) {
+        user.status = "SUSPENDED";
+        user.isVerified = false;
+      }
+    }
+
+    await user.save();
+
+    res.status(201).json({
+      success: true,
+      message:
+        status === "WARNED" && user.status === "SUSPENDED"
+          ? "User suspended due to exceeding warning limit"
+          : `User status updated to ${status}`,
+      user,
+    });
+  } catch (error) {
+    console.error("❌ Error updating user status:", error);
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };

@@ -143,6 +143,13 @@ exports.loginUser = async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
     }
 
+    if (user.status === "SUSPENDED" || user.status === "BANNED") {
+      return res.status(403).json({
+        success: false,
+        message: `Your account is ${user.status.toLowerCase()}. Please contact support.`,
+      });
+    }
+
     if (user.lockUntil && user.lockUntil > Date.now()) {
       const remaining = Math.ceil((user.lockUntil - Date.now()) / 60000);
       return res.status(423).json({
@@ -204,8 +211,12 @@ exports.loginUser = async (req, res) => {
     );
 
     const payload = {
-      role: "USER",
-      user: { id: updatedUser.id, email: updatedUser.email },
+      role: updatedUser.role,
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        status: updatedUser.status,
+      },
       sessionId,
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 60 * 60,
@@ -235,6 +246,7 @@ exports.loginUser = async (req, res) => {
             id: updatedUser.id,
             userName: updatedUser.userName,
             email: updatedUser.email,
+            status: updatedUser.status,
           },
           token,
           expiresIn: 3600,
