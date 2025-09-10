@@ -553,19 +553,35 @@ exports.updateUserStatus = async (req, res) => {
         });
       }
 
-      // push warning
+      // Push warning into user doc
       user.warnings.push({ message: warningMessage, date: new Date() });
 
-      // set status to WARNED
-      user.status = "WARNED";
-      newStatusMessage = `User status updated to WARNED. Total warnings: ${user.warnings.length}`;
+      // Send email notification
+      try {
+        await sendWarningEmail(
+          user.email,
+          warningMessage,
+          user.warnings.length
+        );
+      } catch (err) {
+        console.error("❌ Failed to send warning email:", err);
+      }
 
-      // auto-suspend if warning limit exceeded
+      newStatusMessage = `Warning issued. Total warnings: ${user.warnings.length}`;
+
+      // Auto-suspend after 3 warnings
       if (user.warnings.length >= 3) {
         user.status = "SUSPENDED";
         user.isVerified = false;
         newStatusMessage =
           "User suspended due to exceeding warning limit (3 warnings).";
+
+        // Send suspension email
+        try {
+          await sendSuspensionEmail(user.email);
+        } catch (err) {
+          console.error("❌ Failed to send suspension email:", err);
+        }
       }
     }
 
