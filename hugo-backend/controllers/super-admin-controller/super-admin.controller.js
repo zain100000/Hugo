@@ -16,7 +16,7 @@ const {
 } = require("../../helpers/token-helper/token.helper");
 const {
   sendPasswordResetEmail,
-  sendStatusUpdateEmail,
+  sendUserStatusUpdateEmail,
 } = require("../../helpers/email-helper/email.helper");
 
 /**
@@ -531,21 +531,41 @@ exports.updateUserStatus = async (req, res) => {
         .json({ success: false, message: "User not found" });
     }
 
-    let newStatusMessage = "";
+    let emailSent = false;
+    const warningCount = user.warnings.length;
 
     if (status === "BANNED") {
       user.status = "BANNED";
       user.isVerified = false;
-      newStatusMessage = "User has been banned.";
-    } else if (status === "SUSPENDED") {
+      // Send ban email
+      emailSent = await sendUserStatusUpdateEmail(
+        user.email,
+        "BANNED",
+        warningCount
+      );
+    }
+
+    if (status === "SUSPENDED") {
       user.status = "SUSPENDED";
       user.isVerified = false;
-      newStatusMessage = "User has been suspended.";
-    } else if (status === "ACTIVE") {
+      // Send suspension email
+      emailSent = await sendUserStatusUpdateEmail(
+        user.email,
+        "SUSPENDED",
+        warningCount
+      );
+    }
+
+    if (status === "ACTIVE") {
       user.status = "ACTIVE";
       user.isVerified = true;
-      newStatusMessage = "User has been reactivated.";
-    } else if (status === "WARNED") {
+      // Clear warnings when activating account
+      user.warnings = [];
+      // Send activation email
+      emailSent = await sendUserStatusUpdateEmail(user.email, "ACTIVE");
+    }
+
+    if (status === "WARNED") {
       if (!warningMessage) {
         return res.status(400).json({
           success: false,
@@ -553,47 +573,55 @@ exports.updateUserStatus = async (req, res) => {
         });
       }
 
-      // Push warning into user doc
       user.warnings.push({ message: warningMessage, date: new Date() });
+      const newWarningCount = user.warnings.length;
 
-      // Send email notification
-      try {
-        await sendWarningEmail(
-          user.email,
-          warningMessage,
-          user.warnings.length
-        );
-      } catch (err) {
-        console.error("❌ Failed to send warning email:", err);
-      }
+      // Send warning email with the current warning count
+      emailSent = await sendUserStatusUpdateEmail(
+        user.email,
+        "WARNED",
+        newWarningCount,
+        warningMessage
+      );
 
-      newStatusMessage = `Warning issued. Total warnings: ${user.warnings.length}`;
-
-      // Auto-suspend after 3 warnings
-      if (user.warnings.length >= 3) {
+      if (newWarningCount >= 3) {
         user.status = "SUSPENDED";
         user.isVerified = false;
-        newStatusMessage =
-          "User suspended due to exceeding warning limit (3 warnings).";
-
-        // Send suspension email
-        try {
-          await sendSuspensionEmail(user.email);
-        } catch (err) {
-          console.error("❌ Failed to send suspension email:", err);
-        }
+        // Also send suspension email if automatically suspended
+        await sendUserStatusUpdateEmail(
+          user.email,
+          "SUSPENDED",
+          newWarningCount
+        );
       }
     }
 
     await user.save();
 
-    // send email notification
-    await sendStatusUpdateEmail(user.email, user.status, warningMessage);
+    let responseMessage = "";
+    if (status === "WARNED" && user.status === "SUSPENDED") {
+      responseMessage =
+        "User suspended due to exceeding warning limit (3 warnings)";
+    } else {
+      responseMessage = `User status updated to ${status}`;
+    }
 
-    res.status(200).json({
+    if (emailSent) {
+      responseMessage += " and notification email sent";
+    }
+
+    res.status(201).json({
       success: true,
-      message: newStatusMessage,
-      user,
+      message: responseMessage,
+      user: {
+        _id: user._id,
+        userName: user.userName,
+        email: user.email,
+        status: user.status,
+        warnings: user.warnings,
+        isVerified: user.isVerified,
+      },
+      emailSent: emailSent,
     });
   } catch (error) {
     console.error("❌ Error updating user status:", error);

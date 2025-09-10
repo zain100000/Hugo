@@ -67,8 +67,8 @@ const getEmailTemplate = (content, title = "") => `
               <p style="margin:0; color:#6c757d; font-size:14px; line-height:1.6;">
                 &copy; 2024 HUGO. All rights reserved.<br>
                 <span style="font-size:12px; color:#868e96;">
-                  You’re receiving this email because you’re part of HUGO – the dating app where real connections happen.<br>
-                  If this wasn’t you, please contact our support team immediately.
+                  You're receiving this email because you're part of HUGO – the dating app where real connections happen.<br>
+                  If this wasn't you, please contact our support team immediately.
                 </span>
               </p>
             </td>
@@ -101,7 +101,7 @@ exports.sendPasswordResetEmail = async (toEmail, resetToken) => {
       </div>
 
       <p style="color:#718096; font-size:14px; margin:20px 0;">
-        This reset link is valid for 1 hour. If you didn’t request it, you can safely ignore this email ❤️
+        This reset link is valid for 1 hour. If you didn't request it, you can safely ignore this email ❤️
       </p>
 
       <p>${resetToken}</p>
@@ -153,98 +153,129 @@ exports.sendOTPEmail = async (toEmail, otp) => {
 };
 
 /**
- * @function sendStatusUpdateEmail
- * @description Sends an email to a user about their account status change (WARNED, SUSPENDED, BANNED).
+ * @function sendUserStatusUpdateEmail
+ * @description Sends email notification to user about account status change
  */
-exports.sendStatusUpdateEmail = async (
+exports.sendUserStatusUpdateEmail = async (
   toEmail,
-  userName,
   status,
+  warningCount = 0,
   warningMessage = ""
 ) => {
-  let subject = "";
-  let contentHtml = "";
+  let subject, content;
 
-  switch (status.toUpperCase()) {
+  switch (status) {
     case "WARNED":
-      subject = "⚠️ Important: A warning has been issued for your HUGO account";
-      contentHtml = `
-        <div style="text-align: center; font-family: Arial, sans-serif;">
-          <h2 style="color: #FFC107; font-size: 22px; margin-bottom: 16px; font-weight: 600;">
-            Account Warning
-          </h2>
-          <p style="color: #4a5568; line-height: 1.6; margin-bottom: 18px;">
-            Hello <strong>${userName}</strong>,<br><br>
-            This is an official warning regarding your recent activity on HUGO.
+      subject = `⚠️ Important: Warning Notice - HUGO Account Warning #${warningCount}`;
+      content = `
+        <div style="text-align: center;">
+          <h2 style="color: #d69e2e; font-size: 24px; margin-bottom: 20px; font-weight: 600;">Account Warning Notice</h2>
+          <p style="color: #4a5568; line-height: 1.6; margin-bottom: 20px;">
+            Your HUGO account has received a warning for violating our community guidelines.
           </p>
-          <p style="color: #2d3748; line-height: 1.6; margin: 14px 0; font-style: italic;">
-            <strong>Reason for Warning:</strong><br>
-            "${warningMessage}"
+          
+          <div style="background: #fffaf0; border: 1px solid #d69e2e; border-radius: 8px; padding: 20px; margin: 25px 0;">
+            <h3 style="color: #d69e2e; margin-top: 0;">Warning Details:</h3>
+            <p style="color: #744210; font-style: italic;">"${warningMessage}"</p>
+            <p style="color: #744210; margin-bottom: 0;">
+              <strong>Warning ${warningCount} of 3</strong>
+            </p>
+          </div>
+          
+          <p style="color: #718096; line-height: 1.6;">
+            <strong>Important:</strong> This is warning <strong>#${warningCount}</strong>. After <strong>3 warnings</strong>, your account will be automatically suspended.
           </p>
-          <p style="color: #e53e3e; font-size: 14px; margin: 18px 0;">
-            ⚠️ Please note: Accumulating <strong>3 warnings</strong> will result in automatic account suspension.
-          </p>
-          <p style="color: #718096; font-size: 13px; margin: 18px 0;">
-            Review our <a href="https://hugo.com/community-guidelines" target="_blank" style="color: #3182ce; text-decoration: none;">Community Guidelines</a> 
-            to ensure your profile and behavior comply with our standards.
-          </p>
+          
+          <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 25px;">
+            <p style="margin: 0; color: #6c757d; font-size: 14px;">
+              Please review our <a href="${process.env.FRONTEND_URL}/community-guidelines" style="color: #8B0052;">Community Guidelines</a> to understand what behavior is acceptable on HUGO.
+            </p>
+          </div>
         </div>
       `;
       break;
 
     case "SUSPENDED":
-      subject = "🚫 Your HUGO account has been suspended";
-      contentHtml = `
-        <div style="text-align: center; font-family: Arial, sans-serif;">
-          <h2 style="color: #dc3545; font-size: 22px; margin-bottom: 16px; font-weight: 600;">
-            Account Suspended
-          </h2>
-          <p style="color: #4a5568; line-height: 1.6; margin-bottom: 18px;">
-            Hello <strong>${userName}</strong>,<br><br>
-            Your HUGO account has been <strong>suspended</strong> due to a violation of our community standards.
+      subject = "🚫 Account Suspended - HUGO";
+      content = `
+        <div style="text-align: center;">
+          <h2 style="color: #e53e3e; font-size: 24px; margin-bottom: 20px; font-weight: 600;">Account Suspended</h2>
+          <p style="color: #4a5568; line-height: 1.6; margin-bottom: 25px;">
+            Your HUGO account has been suspended due to multiple violations of our community guidelines.
           </p>
-          <p style="color: #718096; font-size: 13px; margin: 18px 0;">
-            This action was taken because you either violated our Terms of Service or accumulated too many warnings.
+          
+          <div style="background: #fed7d7; border: 1px solid #e53e3e; border-radius: 8px; padding: 20px; margin: 25px 0;">
+            <p style="color: #744210; margin: 0;">
+              <strong>Reason:</strong> Received ${warningCount} warnings for guideline violations
+            </p>
+          </div>
+          
+          <p style="color: #718096; line-height: 1.6;">
+            During this suspension period, you will not be able to access your account, upload media, or interact with other users.
           </p>
-          <p style="color: #e53e3e; font-size: 13px; margin: 18px 0;">
-            To appeal this decision, please contact our support team at 
-            <a href="mailto:support@hugo.com" style="color: #3182ce; text-decoration: none;">support@hugo.com</a>.
+          
+          <p style="color: #4a5568;">
+            If you believe this suspension was made in error, please contact our support team for review.
           </p>
         </div>
       `;
       break;
 
     case "BANNED":
-      subject = "❌ Your HUGO account has been permanently banned";
-      contentHtml = `
-        <div style="text-align: center; font-family: Arial, sans-serif;">
-          <h2 style="color: #dc3545; font-size: 22px; margin-bottom: 16px; font-weight: 600;">
-            Account Banned
-          </h2>
-          <p style="color: #4a5568; line-height: 1.6; margin-bottom: 18px;">
-            Hello <strong>${userName}</strong>,<br><br>
-            We regret to inform you that your HUGO account has been 
-            <strong>permanently banned</strong> due to a severe violation of our policies.
+      subject = "🚫 Permanent Ban - HUGO Account Terminated";
+      content = `
+        <div style="text-align: center;">
+          <h2 style="color: #c53030; font-size: 24px; margin-bottom: 20px; font-weight: 600;">Account Permanently Banned</h2>
+          <p style="color: #4a5568; line-height: 1.6; margin-bottom: 25px;">
+            Your HUGO account has been permanently banned due to severe violations of our community guidelines.
           </p>
-          <p style="color: #e53e3e; font-size: 13px; margin: 18px 0;">
-            This decision is final and cannot be reversed.
+          
+          <div style="background: #fed7d7; border: 2px solid #c53030; border-radius: 8px; padding: 20px; margin: 25px 0;">
+            <p style="color: #744210; margin: 0; font-weight: 600;">
+              This decision is final and cannot be appealed.
+            </p>
+          </div>
+          
+          <p style="color: #718096; line-height: 1.6;">
+            You will no longer be able to access HUGO services with this account. Any attempt to create new accounts may result in immediate termination.
+          </p>
+        </div>
+      `;
+      break;
+
+    case "ACTIVE":
+      subject = "✅ Account Restored - Welcome Back to HUGO!";
+      content = `
+        <div style="text-align: center;">
+          <h2 style="color: #38a169; font-size: 24px; margin-bottom: 20px; font-weight: 600;">Account Restored</h2>
+          <p style="color: #4a5568; line-height: 1.6; margin-bottom: 25px;">
+            Great news! Your HUGO account has been restored and is now active again.
+          </p>
+          
+          <div style="background: #f0fff4; border: 1px solid #38a169; border-radius: 8px; padding: 20px; margin: 25px 0;">
+            <p style="color: #2f855a; margin: 0;">
+              You can now fully access all HUGO features and continue your journey to find meaningful connections.
+            </p>
+          </div>
+          
+          <p style="color: #718096; line-height: 1.6;">
+            Please remember to follow our <a href="${process.env.FRONTEND_URL}/community-guidelines" style="color: #8B0052;">Community Guidelines</a> to ensure a positive experience for everyone.
+          </p>
+          
+          <p style="color: #4a5568;">
+            Welcome back to the HUGO community! ❤️
           </p>
         </div>
       `;
       break;
 
     default:
-      console.warn("⚠️ Unknown status type in sendStatusUpdateEmail:", status);
       return false;
   }
 
-  // Wrap content in your global email template
-  const emailHtml = getEmailTemplate(contentHtml, "Account Status Update");
-
-  // Send email
   return sendEmail({
     to: toEmail,
-    subject,
-    html: emailHtml,
+    subject: subject,
+    html: getEmailTemplate(content, "Account Status Update"),
   });
 };
