@@ -519,10 +519,9 @@ exports.updateUserStatus = async (req, res) => {
     const { status, warningMessage } = req.body;
 
     if (!["ACTIVE", "SUSPENDED", "BANNED", "WARNED"].includes(status)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid status value",
-      });
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid status value" });
     }
 
     const user = await User.findById(userId);
@@ -532,21 +531,20 @@ exports.updateUserStatus = async (req, res) => {
         .json({ success: false, message: "User not found" });
     }
 
-    const originalStatus = user.status;
     let newStatusMessage = "";
 
     if (status === "BANNED") {
       user.status = "BANNED";
       user.isVerified = false;
-      newStatusMessage = `User status updated to BANNED`;
+      newStatusMessage = "User has been banned.";
     } else if (status === "SUSPENDED") {
       user.status = "SUSPENDED";
       user.isVerified = false;
-      newStatusMessage = `User status updated to SUSPENDED`;
+      newStatusMessage = "User has been suspended.";
     } else if (status === "ACTIVE") {
       user.status = "ACTIVE";
       user.isVerified = true;
-      newStatusMessage = `User status updated to ACTIVE`;
+      newStatusMessage = "User has been reactivated.";
     } else if (status === "WARNED") {
       if (!warningMessage) {
         return res.status(400).json({
@@ -555,28 +553,28 @@ exports.updateUserStatus = async (req, res) => {
         });
       }
 
+      // push warning
       user.warnings.push({ message: warningMessage, date: new Date() });
+
+      // set status to WARNED
+      user.status = "WARNED";
       newStatusMessage = `User status updated to WARNED. Total warnings: ${user.warnings.length}`;
 
+      // auto-suspend if warning limit exceeded
       if (user.warnings.length >= 3) {
         user.status = "SUSPENDED";
         user.isVerified = false;
-        newStatusMessage = "User suspended due to exceeding warning limit";
+        newStatusMessage =
+          "User suspended due to exceeding warning limit (3 warnings).";
       }
     }
 
     await user.save();
 
-    if (user.status !== originalStatus || status === "WARNED") {
-      await sendStatusUpdateEmail(
-        user.email,
-        user.userName,
-        user.status,
-        warningMessage
-      );
-    }
+    // send email notification
+    await sendStatusUpdateEmail(user.email, user.status, warningMessage);
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       message: newStatusMessage,
       user,
