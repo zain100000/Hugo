@@ -50,7 +50,7 @@ const getEmailTemplate = (content, title = "") => `
         <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px; background:#ffffff; border-radius:14px; box-shadow:0 4px 20px rgba(0,0,0,0.08); overflow:hidden;">
           <tr>
             <td style="background: linear-gradient(135deg, #8B0052 0%, #1E2F8D 100%); padding:30px; text-align:center;">
-              <img src="https://res.cloudinary.com/dd524q9vc/image/upload/v1757500174/Hugo/profilePictures/logo/logo_um0vrm.png" alt="HUGO" style="width:160px; height:auto;"/>
+              <img src="https://res.cloudinary.com/dd524q9vc/image/upload/v1757501045/Hugo/logo/logo_ifklls.png" alt="HUGO" style="width:160px; height:auto;"/>
               <h1 style="color:white; font-size:24px; margin:15px 0 0 0; font-weight:600;">HUGO</h1>
               <p style="color:#f1f1f1; font-size:14px; margin:8px 0 0;">Where Connections Begin ❤️</p>
             </td>
