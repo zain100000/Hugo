@@ -95,11 +95,12 @@ exports.uploadToCloudinary = async (file, type, existingPublicId = null) => {
     } else {
       const timestamp = Date.now();
       const randomNum = Math.round(Math.random() * 1e6);
-      const ext = path.extname(file.originalname);
-      public_id = `${folder}/${timestamp}-${randomNum}${ext}`;
+      public_id = `${folder}/${timestamp}-${randomNum}`;
     }
 
-    const fileBuffer = `data:${file.mimetype};base64,${file.buffer.toString("base64")}`;
+    const fileBuffer = `data:${file.mimetype};base64,${file.buffer.toString(
+      "base64"
+    )}`;
 
     const result = await cloudinary.uploader.upload(fileBuffer, {
       public_id: public_id,

@@ -1,9 +1,26 @@
+/**
+ * SuperAdmin Schema
+ * @typedef {Object} SuperAdmin
+ * @property {string|null} [profilePicture] - URL or path to the super admin's profile picture
+ * @property {string} userName - Unique username for the super admin (trimmed)
+ * @property {string} email - Unique email address for the super admin (lowercase, trimmed)
+ * @property {string} password - Hashed password for authentication
+ * @property {string} [role="SUPERADMIN"] - Role designation (always "SUPERADMIN")
+ * @property {boolean} [isSuperAdmin=true] - Flag indicating super admin status
+ * @property {boolean} [isActive=true] - Account active status
+ * @property {Date} [createdAt] - Date when the account was created
+ * @property {Date|null} [lastLogin] - Timestamp of the last successful login
+ * @property {number} [loginAttempts=0] - Number of consecutive failed login attempts
+ * @property {Date|null} [lockUntil] - Timestamp until which the account is locked due to excessive failed attempts
+ * @property {string|null} [sessionId] - Current active session identifier
+ * @property {string|null} [passwordResetToken] - Token for password reset functionality
+ * @property {Date|null} [passwordResetExpires] - Expiration date for the password reset token
+ * @property {Date} createdAt - Auto-generated creation timestamp
+ * @property {Date} updatedAt - Auto-generated update timestamp
+ */
+
 const mongoose = require("mongoose");
 
-/**
- * @schema SuperAdminSchema
- * @description Schema representing super admin accounts, including authentication details, account status, security controls, and session management.
- */
 const superAdminSchema = new mongoose.Schema(
   {
     profilePicture: {

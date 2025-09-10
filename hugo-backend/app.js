@@ -45,9 +45,11 @@ app.use((req, res, next) => {
 
 // ==================== BASE API ROUTES ====================
 const superAdminRoute = require("./routes/super-admin-route/super-admin.route.js");
+const userRoute = require("./routes/user-route/user.route.js");
 
 // ==================== API MIDDLEWARES ====================
 app.use("/api/super-admin", superAdminRoute);
+app.use("/api/user", userRoute);
 
 // ==================== SERVER MIDDLEWARES ====================
 
