@@ -1,0 +1,44 @@
+{
+  "name": "hugo-backend",
+  "version": "1.0.0",
+  "description": "The Node.js backend for the Destined Dating App powers a secure, scalable, and modular matchmaking platform that supports three primary user roles: Super Admin, Verified Members, and Premium Subscribers. It manages core functionalities such as user authentication and verification, profile management, discovery and matching algorithms, chat and communication services, subscription handling, and payment integrations with JazzCash, Easypaisa, and global gateways like Stripe and PayPal. The backend exposes RESTful APIs to handle user profiles, matches, subscriptions, chats, notifications, reports, and content moderation, while offering workflows for profile verification, automated keyword and photo filtering, and moderation of reported users or content. Premium subscription features such as boosts, super likes, and incognito browsing are supported, along with push notifications for matches, messages, likes, and promotions.Advanced analytics dashboards provide insights into user activity, engagement, and revenue, while strong data privacy and encryption measures ensure secure communication and compliance with data protection standards. This backend seamlessly interacts with mobile applications (Android) and the web-based Super Admin portal to deliver a reliable, high-performance, and safe dating experience.",
+  "keywords": [
+    "Hugo",
+    "Backend",
+    "DatingApp",
+    "NodeJS"
+  ],
+  "license": "ISC",
+  "author": "zain100000",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "axios": "^1.11.0",
+    "bcrypt": "^6.0.0",
+    "body-parser": "^2.2.0",
+    "cloudinary": "^2.7.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^17.2.1",
+    "express": "^4.21.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.0.1",
+    "helmet": "^8.1.0",
+    "hpp": "^0.2.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.18.0",
+    "mongoose": "^8.18.0",
+    "multer": "^2.0.2",
+    "nodemailer": "^7.0.5",
+    "xss-clean": "^0.1.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "prettier": "^3.6.2"
+  }
+}
