@@ -14,7 +14,14 @@ exports.createCoinPackage = async (req, res) => {
       });
     }
 
-    const { name, coins, price, currency } = req.body;
+    const { name, coins, price, currency, duration } = req.body;
+
+    if (!duration || !duration.value || !duration.unit) {
+      return res.status(400).json({
+        success: false,
+        message: "Duration (value & unit) is required",
+      });
+    }
 
     const exists = await CoinPackage.findOne({ name });
     if (exists) {
@@ -23,12 +30,20 @@ exports.createCoinPackage = async (req, res) => {
         .json({ success: false, message: "Coin package already exists" });
     }
 
-    const newPackage = new CoinPackage({ name, coins, price, currency });
+    const newPackage = new CoinPackage({
+      name,
+      coins,
+      price,
+      currency,
+      duration,
+    });
+
     await newPackage.save();
 
     res.status(201).json({
       success: true,
       message: "Coin package created successfully",
+      package: newPackage,
     });
   } catch (error) {
     console.error("❌ Error creating coin package:", error);
@@ -44,7 +59,13 @@ exports.createCoinPackage = async (req, res) => {
 exports.getAllCoinPackages = async (req, res) => {
   try {
     const packages = await CoinPackage.find().sort({ createdAt: -1 });
-    res.status(200).json({ success: true, pakcages: packages });
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Packages fetched successfully!",
+        packages,
+      });
   } catch (error) {
     console.error("❌ Error fetching coin packages:", error);
     res.status(500).json({ success: false, message: "Server error" });
@@ -59,13 +80,12 @@ exports.getAllCoinPackages = async (req, res) => {
 exports.updateCoinPackage = async (req, res) => {
   try {
     if (!req.user || req.user.role !== "SUPERADMIN") {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          message: "Only super admin can update package",
-        });
+      return res.status(403).json({
+        success: false,
+        message: "Only super admin can update package",
+      });
     }
+
     const { packageId } = req.params;
     const updates = req.body;
 
@@ -87,7 +107,7 @@ exports.updateCoinPackage = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Coin package updated successfully",
-      updatedPackage: updatedPackage,
+      updatedPackage,
     });
   } catch (error) {
     console.error("❌ Error updating coin package:", error);
@@ -103,12 +123,10 @@ exports.updateCoinPackage = async (req, res) => {
 exports.deleteCoinPackage = async (req, res) => {
   try {
     if (!req.user || req.user.role !== "SUPERADMIN") {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          message: "Only super admin can delete package",
-        });
+      return res.status(403).json({
+        success: false,
+        message: "Only super admin can delete package",
+      });
     }
 
     const { packageId } = req.params;
@@ -120,9 +138,10 @@ exports.deleteCoinPackage = async (req, res) => {
         .json({ success: false, message: "Coin package not found" });
     }
 
-    res
-      .status(200)
-      .json({ success: true, message: "Coin package deleted successfully" });
+    res.status(200).json({
+      success: true,
+      message: "Coin package deleted successfully",
+    });
   } catch (error) {
     console.error("❌ Error deleting coin package:", error);
     res.status(500).json({ success: false, message: "Server error" });

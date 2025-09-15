@@ -1,6 +1,3 @@
-const mongoose = require("mongoose");
-const { v4: uuidv4 } = require("uuid");
-
 /**
  * User Schema
  * @typedef {Object} User
@@ -39,6 +36,9 @@ const { v4: uuidv4 } = require("uuid");
  * @property {Date} createdAt - Auto-generated creation timestamp
  * @property {Date} updatedAt - Auto-generated update timestamp
  */
+
+const mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
 
 const userSchema = new mongoose.Schema(
   {

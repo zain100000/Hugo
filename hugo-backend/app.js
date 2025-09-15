@@ -3,15 +3,25 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const http = require("http");
-const { initializeSocket } = require("./utilities/socket/socket.utlity.js");
 require("dotenv").config();
+
+const { initializeSocket } = require("./utilities/socket/socket.utlity.js");
+const {
+  initializeClubSocket,
+} = require("./controllers/club-controller/club.controller.js"); // ⬅️ import your new club socket
 
 const { securityMiddleware } = require("./middlewares/security.middleware");
 
 const app = express();
 const server = http.createServer(app);
+
+// Initialize main socket
 const io = initializeSocket(server);
 
+// Initialize club socket with the same io instance
+initializeClubSocket(io); // ⬅️ add this line
+
+// ==================== BASE MIDDLEWARES ====================
 securityMiddleware(app);
 app.use(cookieParser());
 app.use(express.json({ limit: "20kb" }));
@@ -56,7 +66,6 @@ const coinPackageRoute = require("./routes/coin-package-route/coin.package.route
 const transactionRoute = require("./routes/transaction-route/transaction.route.js");
 const followerRoute = require("./routes/follower-route/follower.route.js");
 
-// ==================== API MIDDLEWARES ====================
 app.use("/api/super-admin", superAdminRoute);
 app.use("/api/user", userRoute);
 app.use("/api/otp", otpRoute);
@@ -65,8 +74,7 @@ app.use("/api/coin-package", coinPackageRoute);
 app.use("/api/transaction", transactionRoute);
 app.use("/api/follow", followerRoute);
 
-// ==================== SERVER MIDDLEWARES ====================
-
+// ==================== SERVER HEALTH ====================
 app.get("/api/health", (req, res) => {
   res.status(201).json({
     success: true,
@@ -74,8 +82,6 @@ app.get("/api/health", (req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
-
-// ==================== STARTING ENDPOINT ====================
 
 app.get("/", (req, res) => {
   res.status(201).json({
@@ -88,6 +94,7 @@ app.use((req, res) => {
   res.status(404).json({ success: false, message: "API endpoint not found" });
 });
 
+// ==================== DB CONNECTION ====================
 mongoose
   .connect(process.env.MONGODB_URI, {
     serverSelectionTimeoutMS: 5000,
@@ -104,6 +111,7 @@ mongoose
     process.exit(1);
   });
 
+// ==================== CLEANUP ====================
 process.on("SIGINT", () => {
   console.log("SIGINT received. Shutting down gracefully");
   mongoose.connection.close(() => {

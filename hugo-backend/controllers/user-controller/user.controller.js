@@ -25,7 +25,6 @@ const referralConfig = require("../../config/referral.config");
  * @route POST /api/user/signup-user
  * @access Public
  */
-
 exports.registerUser = async (req, res) => {
   let uploadedFileUrl = null;
 
@@ -71,28 +70,17 @@ exports.registerUser = async (req, res) => {
 
     const hashedPassword = await hashPassword(password);
 
-    const user = new User({
-      userName,
-      email: email.toLowerCase(),
-      password: hashedPassword,
-      phone,
-      profilePicture: profilePictureUrl,
-      bio,
-      gender,
-      dob,
-      coins: 0,
-      role: "USER",
-      isVerified: false,
-      isSuspended: false,
-    });
-
+    // Award 100 coins to new user
+    const initialCoins = 100;
+    let referralBonus = 0;
     let inviter = null;
 
+    // Handle referral bonus if referral code is provided
     if (referralCode) {
       inviter = await User.findOne({ referralCode });
       if (inviter) {
         user.referredBy = inviter._id;
-        user.coins += referralConfig.coinsPerInvite;
+        referralBonus = referralConfig.coinsPerInvite;
 
         inviter.invitesCount += 1;
         inviter.coins += referralConfig.coinsPerInvite;
@@ -105,17 +93,33 @@ exports.registerUser = async (req, res) => {
       }
     }
 
+    const user = new User({
+      userName,
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      phone,
+      profilePicture: profilePictureUrl,
+      bio,
+      gender,
+      dob,
+      coins: initialCoins + referralBonus, // 100 coins + referral bonus
+      role: "USER",
+      isVerified: false,
+    });
+
     await user.save();
 
     res.status(201).json({
       success: true,
-      message: "User registered successfully!",
+      message: "User registered successfully! You received 100 coins!",
       user: {
         id: user._id,
         userName: user.userName,
         coins: user.coins,
         referralCode: user.referralCode,
         referredBy: inviter ? inviter.userName : null,
+        signupBonus: initialCoins,
+        referralBonus: referralBonus,
       },
     });
   } catch (error) {
