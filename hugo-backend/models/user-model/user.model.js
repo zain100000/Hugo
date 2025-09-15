@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
 
 /**
  * User Schema
@@ -206,6 +207,23 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
+
+    referralCode: {
+      type: String,
+      unique: true,
+      default: () => uuidv4().slice(0, 8),
+    },
+
+    referredBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
+    invitesCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { timestamps: true }
 );

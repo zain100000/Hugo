@@ -60,4 +60,13 @@ router.post("/reset-password/:token", userController.resetPasswordWithToken);
  */
 router.post("/verify-reset-token/:token", userController.verifyResetToken);
 
+/**
+ * @description Route to delete user account.
+ */
+router.delete(
+  "/delete-user-account/:userId",
+  authMiddleware,
+  userController.deleteUserAccount
+);
+
 module.exports = router;

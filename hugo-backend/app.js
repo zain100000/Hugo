@@ -2,11 +2,15 @@ const express = require("express");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
+const http = require("http");
+const { initializeSocket } = require("./utilities/socket/socket.utlity.js");
 require("dotenv").config();
 
 const { securityMiddleware } = require("./middlewares/security.middleware");
 
 const app = express();
+const server = http.createServer(app);
+const io = initializeSocket(server);
 
 securityMiddleware(app);
 app.use(cookieParser());
@@ -48,12 +52,18 @@ const superAdminRoute = require("./routes/super-admin-route/super-admin.route.js
 const userRoute = require("./routes/user-route/user.route.js");
 const otpRoute = require("./routes/otp-route/otp.route.js");
 const mediaRoute = require("./routes/media-route/media.route.js");
+const coinPackageRoute = require("./routes/coin-package-route/coin.package.route.js");
+const transactionRoute = require("./routes/transaction-route/transaction.route.js");
+const followerRoute = require("./routes/follower-route/follower.route.js");
 
 // ==================== API MIDDLEWARES ====================
 app.use("/api/super-admin", superAdminRoute);
 app.use("/api/user", userRoute);
 app.use("/api/otp", otpRoute);
 app.use("/api/media", mediaRoute);
+app.use("/api/coin-package", coinPackageRoute);
+app.use("/api/transaction", transactionRoute);
+app.use("/api/follow", followerRoute);
 
 // ==================== SERVER MIDDLEWARES ====================
 
@@ -85,7 +95,7 @@ mongoose
   })
   .then(() => {
     console.log("Connected to MongoDB successfully!");
-    app.listen(process.env.PORT, () => {
+    server.listen(process.env.PORT, () => {
       console.log(`Server is running on port ${process.env.PORT}`);
     });
   })

@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
+const { v2: cloudinary } = require("cloudinary");
 const User = require("../../models/user-model/user.model");
 const {
   uploadToCloudinary,
@@ -17,17 +18,20 @@ const {
 const {
   sendPasswordResetEmail,
 } = require("../../helpers/email-helper/email.helper");
+const referralConfig = require("../../config/referral.config");
 
 /**
- * @description Controller for user registration
+ * @description Controller for user registration (with referral system)
  * @route POST /api/user/signup-user
  * @access Public
  */
+
 exports.registerUser = async (req, res) => {
   let uploadedFileUrl = null;
 
   try {
-    const { userName, email, password, phone, bio, gender, dob } = req.body;
+    const { userName, email, password, phone, bio, gender, dob, referralCode } =
+      req.body;
 
     if (!passwordRegex.test(password)) {
       return res.status(400).json({
@@ -82,11 +86,37 @@ exports.registerUser = async (req, res) => {
       isSuspended: false,
     });
 
+    let inviter = null;
+
+    if (referralCode) {
+      inviter = await User.findOne({ referralCode });
+      if (inviter) {
+        user.referredBy = inviter._id;
+        user.coins += referralConfig.coinsPerInvite;
+
+        inviter.invitesCount += 1;
+        inviter.coins += referralConfig.coinsPerInvite;
+
+        if (inviter.invitesCount % referralConfig.bonusThreshold === 0) {
+          inviter.coins += referralConfig.bonusCoins;
+        }
+
+        await inviter.save();
+      }
+    }
+
     await user.save();
 
     res.status(201).json({
       success: true,
       message: "User registered successfully!",
+      user: {
+        id: user._id,
+        userName: user.userName,
+        coins: user.coins,
+        referralCode: user.referralCode,
+        referredBy: inviter ? inviter.userName : null,
+      },
     });
   } catch (error) {
     console.error("❌ Error registering user:", error);
@@ -572,6 +602,144 @@ exports.verifyResetToken = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Server error",
+    });
+  }
+};
+
+/**
+ * @description Controller to delete user account with proper error handling and rollback
+ * @route DELETE /api/user/delete-user-account/:userId
+ * @access Private (User)
+ */
+exports.deleteUserAccount = async (req, res) => {
+  let session = null;
+  let cloudinaryPublicId = null;
+  let originalProfilePicture = null;
+
+  try {
+    const { userId } = req.params;
+    const requestingUserId = req.userId;
+
+    if (userId !== requestingUserId) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only delete your own account",
+      });
+    }
+
+    session = await mongoose.startSession();
+    session.startTransaction();
+
+    const user = await User.findById(userId).session(session);
+    if (!user) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(404).json({
+        success: false,
+        message: "User Not Found!",
+      });
+    }
+
+    originalProfilePicture = user.profilePicture;
+
+    if (user.profilePicture) {
+      try {
+        const urlParts = user.profilePicture.split("/");
+        const uploadIndex = urlParts.findIndex((part) => part === "upload");
+        if (uploadIndex !== -1 && urlParts.length > uploadIndex + 2) {
+          cloudinaryPublicId = urlParts
+            .slice(uploadIndex + 2)
+            .join("/")
+            .replace(/\.[^.]+$/, "");
+        }
+      } catch (error) {
+        console.error("❌ Error extracting Cloudinary public ID:", error);
+      }
+    }
+
+    if (cloudinaryPublicId) {
+      try {
+        const result = await cloudinary.uploader.destroy(cloudinaryPublicId, {
+          resource_type: "image",
+        });
+
+        if (result.result !== "ok") {
+          console.warn("⚠️ Cloudinary deletion may have failed:", result);
+        }
+      } catch (error) {
+        console.error(
+          "❌ Error deleting profile picture from Cloudinary:",
+          error
+        );
+      }
+    }
+
+    if (user.media && user.media.length > 0) {
+      try {
+        for (const mediaItem of user.media) {
+          if (mediaItem.url) {
+            try {
+              await deleteFromCloudinary(
+                mediaItem.url,
+                mediaItem.type === "VIDEO" ? "video" : "image"
+              );
+            } catch (mediaError) {
+              console.error("❌ Error deleting media item:", mediaError);
+            }
+          }
+        }
+      } catch (error) {
+        console.error("❌ Error processing user media deletion:", error);
+      }
+    }
+
+    await User.findByIdAndDelete(userId).session(session);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.status(200).json({
+      success: true,
+      message: "User account and all associated data deleted successfully!",
+    });
+  } catch (error) {
+    if (session) {
+      try {
+        await session.abortTransaction();
+        session.endSession();
+      } catch (transactionError) {
+        console.error("❌ Error aborting transaction:", transactionError);
+      }
+    }
+
+    if (cloudinaryPublicId && originalProfilePicture) {
+      try {
+        console.log(
+          "⚠️ Attempting to restore Cloudinary image due to failed deletion"
+        );
+
+        console.warn(
+          `Cloudinary image ${cloudinaryPublicId} was deleted but database operation failed`
+        );
+      } catch (restoreError) {
+        console.error("❌ Error during restoration attempt:", restoreError);
+      }
+    }
+
+    console.error("❌ Error deleting user account:", error);
+
+    let errorMessage = "Server Error";
+    if (error.name === "CastError") {
+      errorMessage = "Invalid user ID format";
+    } else if (error.code === 11000) {
+      errorMessage = "Database constraint violation";
+    }
+
+    res.status(500).json({
+      success: false,
+      message: `Account deletion failed: ${errorMessage}`,
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
