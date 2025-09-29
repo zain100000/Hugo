@@ -39,14 +39,14 @@ const transactionSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["PENDING", "SUCCESS", "FAILED"],
-      default: "PENDING",
+      enum: ["PENDING_REVIEW", "SUCCESS", "REJECTED", "FAILED"],
+      default: "PENDING_REVIEW",
     },
 
     paymentMethod: {
       type: String,
-      enum: ["PAYONEER", "TEST"],
-      default: "PAYONEER",
+      enum: ["PAYONEER_MANUAL", "BANK_TRANSFER", "OTHER"],
+      default: "PAYONEER_MANUAL",
     },
 
     gatewayResponse: {
@@ -55,6 +55,33 @@ const transactionSchema = new mongoose.Schema(
     },
 
     reference: {
+      type: String,
+      default: null,
+    },
+
+    // New fields for manual payment review
+    receiptUrl: {
+      type: String,
+      required: true,
+    },
+
+    receiptPublicId: {
+      type: String,
+      required: true,
+    },
+
+    reviewedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+
+    reviewedAt: {
+      type: Date,
+      default: null,
+    },
+
+    adminNotes: {
       type: String,
       default: null,
     },

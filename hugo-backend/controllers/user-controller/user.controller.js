@@ -74,12 +74,13 @@ exports.registerUser = async (req, res) => {
     const initialCoins = 100;
     let referralBonus = 0;
     let inviter = null;
+    let referredBy = null;
 
     // Handle referral bonus if referral code is provided
     if (referralCode) {
       inviter = await User.findOne({ referralCode });
       if (inviter) {
-        user.referredBy = inviter._id;
+        referredBy = inviter._id;
         referralBonus = referralConfig.coinsPerInvite;
 
         inviter.invitesCount += 1;
@@ -93,6 +94,7 @@ exports.registerUser = async (req, res) => {
       }
     }
 
+    // Create user object after all variables are defined
     const user = new User({
       userName,
       email: email.toLowerCase(),
@@ -105,6 +107,7 @@ exports.registerUser = async (req, res) => {
       coins: initialCoins + referralBonus, // 100 coins + referral bonus
       role: "USER",
       isVerified: false,
+      referredBy: referredBy, // Add referredBy field here
     });
 
     await user.save();

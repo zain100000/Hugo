@@ -5,7 +5,6 @@ require("dotenv").config();
 
 /**
  * @description Configure Cloudinary with credentials from environment variables
- * Keep credentials outside of code for security
  */
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -14,7 +13,7 @@ cloudinary.config({
 });
 
 /**
- * @description Multer in-memory storage (prevents temp file leaks on disk)
+ * @description Multer in-memory storage
  */
 const storage = multer.memoryStorage();
 
@@ -55,18 +54,18 @@ const fileFilter = (req, file, cb) => {
 
 /**
  * @description Multer middleware to handle file uploads securely
- * Limits file size to prevent DoS attacks
  */
 exports.upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024,
+    fileSize: 5 * 1024 * 1024, // 5MB limit
   },
 }).fields([
   { name: "profilePicture", maxCount: 1 },
   { name: "mediaImage", maxCount: 5 },
   { name: "mediaVideo", maxCount: 3 },
+  { name: "receipt", maxCount: 1 }, // CHANGED: from "paymentReceipts" to "receipt"
 ]);
 
 /**
@@ -119,6 +118,12 @@ exports.uploadToCloudinary = async (
       folder += `/Media/${userId}`;
       resourceType = "video";
       break;
+    case "paymentReceipts": // CHANGED: Corrected spelling
+      folder += "/paymentReceipts";
+      transformation = {
+        quality: "auto",
+      };
+      break;
     default:
       throw new Error("Invalid file type");
   }
@@ -138,6 +143,8 @@ exports.uploadToCloudinary = async (
         public_id = `${folder}/media_image_${timestamp}-${randomNum}`;
       } else if (type === "mediaVideo") {
         public_id = `${folder}/media_video_${timestamp}-${randomNum}`;
+      } else if (type === "paymentReceipts") {
+        public_id = `${folder}/receipt_${timestamp}-${randomNum}`;
       }
     }
 
