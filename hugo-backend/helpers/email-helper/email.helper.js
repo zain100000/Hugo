@@ -1,14 +1,27 @@
 const nodemailer = require("nodemailer");
 
+console.log("🔧 Initializing email transporter...");
+console.log("📧 Email User:", process.env.EMAIL_USER ? "Loaded" : "MISSING");
+console.log(
+  "🔑 Email Pass Length:",
+  process.env.EMAIL_PASS
+    ? process.env.EMAIL_PASS.length + " characters"
+    : "MISSING"
+);
+
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // true for port 465
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  connectionTimeout: 60000,
+  socketTimeout: 60000,
+  debug: true,
+  logger: true,
 });
+
+console.log("✅ Transporter configured");
 
 /**
  * @function sendEmail
@@ -22,11 +35,39 @@ const sendEmail = async ({ to, subject, html }) => {
     html,
   };
 
+  console.log(`\n📤 Attempting to send email:`);
+  console.log(`   To: ${to}`);
+  console.log(`   Subject: ${subject}`);
+  console.log(`   From: ${process.env.EMAIL_USER}`);
+
   try {
-    await transporter.sendMail(mailOptions);
+    console.log("🔍 Verifying SMTP connection...");
+    await transporter.verify();
+    console.log("✅ SMTP connection verified successfully");
+
+    console.log("🚀 Sending email...");
+    const info = await transporter.sendMail(mailOptions);
+
+    console.log("✅ Email sent successfully!");
+    console.log(`   Message ID: ${info.messageId}`);
+    console.log(`   Response: ${info.response}`);
+
     return true;
   } catch (err) {
-    console.error("Failed to send email:", err.message);
+    console.error("❌ FAILED to send email:");
+    console.error("   Error Name:", err.name);
+    console.error("   Error Message:", err.message);
+    console.error("   Error Code:", err.code);
+    console.error("   Command:", err.command);
+
+    if (err.response) {
+      console.error("   SMTP Response:", err.response);
+    }
+
+    if (err.responseCode) {
+      console.error("   Response Code:", err.responseCode);
+    }
+
     return false;
   }
 };
@@ -82,10 +123,61 @@ const getEmailTemplate = (content, title = "") => `
 `;
 
 /**
+ * @function testEmailConnection
+ * @description Test email connection and send a test email
+ */
+const testEmailConnection = async () => {
+  console.log("\n🧪 ========== EMAIL CONNECTION TEST ==========");
+  try {
+    console.log("🔧 Testing email configuration...");
+    console.log("📧 Email user:", process.env.EMAIL_USER);
+    console.log("🔑 Email pass length:", process.env.EMAIL_PASS?.length);
+
+    console.log("🔄 Verifying transporter...");
+    await transporter.verify();
+    console.log("✅ SMTP connection verified successfully!");
+
+    // Send a test email
+    console.log("🚀 Sending test email...");
+    const testResult = await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: "zabideen639@gmail.com",
+      subject: "HUGO - Test Email Connection",
+      text: "This is a test email from HUGO server to verify email functionality.",
+      html: "<h1>HUGO Test Email</h1><p>This is a test email from HUGO server to verify email functionality.</p>",
+    });
+
+    console.log("✅ Test email sent successfully!");
+    console.log("   Message ID:", testResult.messageId);
+    console.log("   Response:", testResult.response);
+
+    return true;
+  } catch (error) {
+    console.error("❌ Email test FAILED:");
+    console.error("   Error Name:", error.name);
+    console.error("   Error Message:", error.message);
+    console.error("   Error Code:", error.code);
+
+    if (error.response) {
+      console.error("   SMTP Response:", error.response);
+    }
+
+    return false;
+  }
+};
+
+// Test email connection when module loads
+setTimeout(() => {
+  testEmailConnection();
+}, 2000);
+
+/**
  * @function sendPasswordResetEmail
  * @description Sends password reset email for HUGO.
  */
 exports.sendPasswordResetEmail = async (toEmail, resetToken) => {
+  console.log(`\n🔐 Attempting to send password reset email to: ${toEmail}`);
+
   const resetLink = `${process.env.FRONTEND_URL}/super-admin/reset-password?token=${resetToken}`;
   const content = `
     <div style="text-align:center;">
@@ -103,17 +195,19 @@ exports.sendPasswordResetEmail = async (toEmail, resetToken) => {
       <p style="color:#718096; font-size:14px; margin:20px 0;">
         This reset link is valid for 1 hour. If you didn't request it, you can safely ignore this email ❤️
       </p>
-
-      <p>${resetToken}</p>
-      
     </div>
   `;
 
-  return sendEmail({
+  const result = await sendEmail({
     to: toEmail,
     subject: "Reset Your HUGO Password ❤️",
     html: getEmailTemplate(content, "Password Reset"),
   });
+
+  console.log(
+    `📧 Password reset email result for ${toEmail}: ${result ? "SUCCESS" : "FAILED"}`
+  );
+  return result;
 };
 
 /**
@@ -121,6 +215,9 @@ exports.sendPasswordResetEmail = async (toEmail, resetToken) => {
  * @description Generates a styled OTP (One-Time Password) email using HUGO's branding.
  */
 exports.sendOTPEmail = async (toEmail, otp) => {
+  console.log(`\n📨 Attempting to send OTP email to: ${toEmail}`);
+  console.log(`   OTP Code: ${otp}`);
+
   const content = `
     <div style="text-align: center;">
         <h2 style="color: #2d3748; font-size: 24px; margin-bottom: 20px; font-weight: 600;">Your HUGO Verification Code</h2>
@@ -145,11 +242,16 @@ exports.sendOTPEmail = async (toEmail, otp) => {
     </div>
   `;
 
-  return sendEmail({
+  const result = await sendEmail({
     to: toEmail,
     subject: "Your HUGO Verification Code ❤️",
     html: getEmailTemplate(content, "HUGO Verification"),
   });
+
+  console.log(
+    `📧 OTP email result for ${toEmail}: ${result ? "SUCCESS" : "FAILED"}`
+  );
+  return result;
 };
 
 /**
@@ -162,6 +264,11 @@ exports.sendUserStatusUpdateEmail = async (
   warningCount = 0,
   warningMessage = ""
 ) => {
+  console.log(`\n📢 Attempting to send status update email to: ${toEmail}`);
+  console.log(`   Status: ${status}`);
+  console.log(`   Warning Count: ${warningCount}`);
+  console.log(`   Warning Message: ${warningMessage}`);
+
   let subject, content;
 
   switch (status) {
@@ -270,12 +377,18 @@ exports.sendUserStatusUpdateEmail = async (
       break;
 
     default:
+      console.log(`❌ Unknown status: ${status}`);
       return false;
   }
 
-  return sendEmail({
+  const result = await sendEmail({
     to: toEmail,
     subject: subject,
     html: getEmailTemplate(content, "Account Status Update"),
   });
+
+  console.log(
+    `📧 Status update email result for ${toEmail}: ${result ? "SUCCESS" : "FAILED"}`
+  );
+  return result;
 };
