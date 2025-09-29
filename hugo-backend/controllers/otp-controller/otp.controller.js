@@ -7,9 +7,10 @@ const {
 } = require("../../utilities/otp/otp.utility");
 
 const User = require("../../models/user-model/user.model");
-const {
-  sendOTPEmail,
+const { 
+  sendOTPEmail, 
   testEmailConnection,
+  getEmailStatus 
 } = require("../../helpers/email-helper/email.helper");
 
 let verifiedUserPhones = new Set();
@@ -23,6 +24,7 @@ exports.verifiedUserPhones = verifiedUserPhones;
 exports.sendUserOTP = async (req, res) => {
   console.log("\n📨 ========== SEND OTP REQUEST ==========");
   console.log("📱 Request body:", JSON.stringify(req.body, null, 2));
+  console.log("📧 Email system status:", getEmailStatus());
 
   try {
     const { phone } = req.body;
@@ -44,7 +46,7 @@ exports.sendUserOTP = async (req, res) => {
         .json({ success: false, message: "User not found" });
     }
 
-    console.log(`✅ User found: ${user.email}`);
+    console.log(`✅ User found: ${user.email || 'No email'}`);
     console.log(`📧 User email: ${user.email}`);
 
     if (!user.email) {
@@ -78,7 +80,10 @@ exports.sendUserOTP = async (req, res) => {
       console.error("❌ FAILED to send OTP email to:", user.email);
       return res
         .status(500)
-        .json({ success: false, message: "Failed to send OTP email" });
+        .json({ 
+          success: false, 
+          message: "Failed to send OTP email. Please try again later." 
+        });
     }
 
     console.log("✅ OTP email sent successfully!");
@@ -172,3 +177,66 @@ exports.verifyUserOTP = async (req, res) => {
       .json({ success: false, message: "Server error while verifying OTP" });
   }
 };
+
+/**
+ * @description Test email connection endpoint
+ * @route GET /api/otp/test-email
+ * @access Public
+ */
+exports.testEmailConnection = async (req, res) => {
+  console.log("\n🧪 ========== MANUAL EMAIL TEST REQUEST ==========");
+  
+  try {
+    console.log("🚀 Starting manual email test...");
+    const result = await testEmailConnection();
+    
+    if (result.success) {
+      console.log("✅ Manual email test: SUCCESS");
+      res.status(200).json({
+        success: true,
+        message: "Email test completed successfully",
+        config: result.config
+      });
+    } else {
+      console.log("❌ Manual email test: FAILED");
+      res.status(500).json({
+        success: false,
+        message: "Email test failed - check server logs"
+      });
+    }
+  } catch (error) {
+    console.error("❌ Manual email test ERROR:");
+    console.error("   Error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Email test error: " + error.message
+    });
+  }
+};
+
+/**
+ * @description Get email system status
+ * @route GET /api/otp/email-status
+ * @access Public
+ */
+exports.getEmailStatus = async (req, res) => {
+  console.log("\n📊 ========== EMAIL STATUS REQUEST ==========");
+  
+  try {
+    const status = getEmailStatus();
+    console.log("📧 Email status:", status);
+    
+    res.status(200).json({
+      success: true,
+      data: status
+    });
+  } catch (error) {
+    console.error("❌ Email status error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Failed to get email status"
+    });
+  }
+};
+
+console.log("✅ OTP controller loaded successfully");
