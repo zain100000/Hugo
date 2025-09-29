@@ -1,202 +1,20 @@
 const nodemailer = require("nodemailer");
-const dns = require("dns");
-const net = require("net");
 
-console.log("🔧 ========== EMAIL HELPER INITIALIZATION ==========");
-console.log("📧 Email User:", process.env.EMAIL_USER ? "Loaded" : "MISSING");
-console.log(
-  "🔑 Email Pass Length:",
-  process.env.EMAIL_PASS
-    ? process.env.EMAIL_PASS.length + " characters"
-    : "MISSING"
-);
-console.log("🌐 Frontend URL:", process.env.FRONTEND_URL || "MISSING");
-
-// Configuration options to try in order
-const transporterConfigs = [
-  {
-    name: "Gmail SSL (Port 465)",
-    config: {
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      connectionTimeout: 30000,
-      socketTimeout: 30000,
-      tls: { rejectUnauthorized: false },
-    },
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
-  {
-    name: "Gmail TLS (Port 587)",
-    config: {
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      requireTLS: true,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      connectionTimeout: 30000,
-      socketTimeout: 30000,
-      tls: { rejectUnauthorized: false },
-    },
-  },
-  {
-    name: "Gmail Service",
-    config: {
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      connectionTimeout: 30000,
-      socketTimeout: 30000,
-    },
-  },
-];
-
-let activeTransporter = null;
-let activeConfigName = "None";
-
-/**
- * @function checkNetworkConnectivity
- * @description Diagnostic function to check network connectivity to Gmail SMTP
- */
-const checkNetworkConnectivity = async () => {
-  console.log("\n🌐 ========== NETWORK DIAGNOSTICS ==========");
-
-  try {
-    // Check DNS resolution
-    console.log("🔍 Resolving smtp.gmail.com...");
-    const addresses = await dns.promises.resolve4("smtp.gmail.com");
-    console.log("✅ DNS Resolution successful:", addresses);
-
-    // Check port connectivity
-    console.log("🔌 Testing port connectivity...");
-    const ports = [465, 587, 25];
-
-    for (const port of ports) {
-      const isAccessible = await new Promise((resolve) => {
-        const socket = new net.Socket();
-        const timeout = 10000;
-
-        socket.setTimeout(timeout);
-        socket.on("connect", () => {
-          console.log(`✅ Port ${port} is accessible`);
-          socket.destroy();
-          resolve(true);
-        });
-
-        socket.on("timeout", () => {
-          console.log(`❌ Port ${port} connection timeout`);
-          socket.destroy();
-          resolve(false);
-        });
-
-        socket.on("error", (err) => {
-          console.log(`❌ Port ${port} error: ${err.message}`);
-          socket.destroy();
-          resolve(false);
-        });
-
-        socket.connect(port, "smtp.gmail.com");
-      });
-
-      if (isAccessible) {
-        console.log(`🎯 Recommended port: ${port}`);
-        break;
-      }
-    }
-
-    return true;
-  } catch (error) {
-    console.error("❌ Network diagnostics failed:", error.message);
-    return false;
-  }
-};
-
-/**
- * @function initializeTransporter
- * @description Try different configurations until one works
- */
-const initializeTransporter = async () => {
-  console.log("\n🔄 ========== INITIALIZING EMAIL TRANSPORTER ==========");
-
-  // First run network diagnostics
-  await checkNetworkConnectivity();
-
-  for (const config of transporterConfigs) {
-    console.log(`\n🔧 Trying configuration: ${config.name}`);
-
-    try {
-      const transporter = nodemailer.createTransport({
-        ...config.config,
-        debug: true,
-        logger: true,
-      });
-
-      console.log("🔄 Testing connection...");
-      await transporter.verify();
-      console.log(`✅ SUCCESS with ${config.name}`);
-
-      activeTransporter = transporter;
-      activeConfigName = config.name;
-
-      // Test sending a simple email
-      console.log("🧪 Sending verification test email...");
-      const testResult = await transporter.sendMail({
-        from: process.env.EMAIL_USER,
-        to: process.env.EMAIL_USER, // Send to ourselves for testing
-        subject: "HUGO - Email Configuration Test",
-        text: `This is a test email using ${config.name}. Your HUGO email system is working correctly!`,
-        html: `<h1>HUGO Email Test</h1><p>This is a test email using <strong>${config.name}</strong>. Your HUGO email system is working correctly!</p>`,
-      });
-
-      console.log(`✅ Test email sent successfully via ${config.name}`);
-      console.log(`   Message ID: ${testResult.messageId}`);
-
-      return transporter;
-    } catch (error) {
-      console.log(`❌ FAILED with ${config.name}: ${error.message}`);
-      if (error.code) console.log(`   Error Code: ${error.code}`);
-      continue;
-    }
-  }
-
-  console.log("❌ All transporter configurations failed");
-  console.log("💡 Possible solutions:");
-  console.log("   1. Check if Gmail App Password is correct");
-  console.log("   2. Check network firewall settings");
-  console.log("   3. Try using a different network (mobile hotspot)");
-  console.log("   4. Verify 2-factor authentication is enabled");
-
-  return null;
-};
+});
 
 /**
  * @function sendEmail
- * @description Sends an email using the active transporter
+ * @description Sends an email using the configured transporter.
  */
 const sendEmail = async ({ to, subject, html }) => {
-  console.log(`\n📤 ========== SENDING EMAIL ==========`);
-  console.log(`   To: ${to}`);
-  console.log(`   Subject: ${subject}`);
-  console.log(`   Active Config: ${activeConfigName}`);
-
-  if (!activeTransporter) {
-    console.log("🔄 No active transporter, initializing...");
-    await initializeTransporter();
-
-    if (!activeTransporter) {
-      console.log("❌ No working email configuration found");
-      return false;
-    }
-  }
-
   const mailOptions = {
     from: `"HUGO" <${process.env.EMAIL_USER}>`,
     to,
@@ -205,39 +23,10 @@ const sendEmail = async ({ to, subject, html }) => {
   };
 
   try {
-    console.log("🚀 Sending email...");
-    const info = await activeTransporter.sendMail(mailOptions);
-
-    console.log("✅ Email sent successfully!");
-    console.log(`   Message ID: ${info.messageId}`);
-    console.log(`   Response: ${info.response}`);
-    console.log(`   Config Used: ${activeConfigName}`);
-
+    await transporter.sendMail(mailOptions);
     return true;
   } catch (err) {
-    console.error("❌ FAILED to send email:");
-    console.error("   Error:", err.message);
-    console.error("   Code:", err.code);
-    console.error("   Config:", activeConfigName);
-
-    // Try to reinitialize transporter on failure
-    console.log("🔄 Attempting to reinitialize transporter...");
-    activeTransporter = null;
-    await initializeTransporter();
-
-    if (activeTransporter) {
-      console.log("🔄 Retrying email send with new transporter...");
-      try {
-        const retryInfo = await activeTransporter.sendMail(mailOptions);
-        console.log("✅ Email sent successfully on retry!");
-        console.log(`   Message ID: ${retryInfo.messageId}`);
-        return true;
-      } catch (retryErr) {
-        console.error("❌ Retry also failed:", retryErr.message);
-        return false;
-      }
-    }
-
+    console.error("Failed to send email:", err.message);
     return false;
   }
 };
@@ -246,28 +35,13 @@ const sendEmail = async ({ to, subject, html }) => {
  * @function getEmailTemplate
  * @description Generates a romantic/professional HTML email template for HUGO (dating app).
  */
-const getEmailTemplate = (content, title = "") => {
-  console.log(`🎨 Generating email template: ${title}`);
-  return `
+const getEmailTemplate = (content, title = "") => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${title}</title>
-    <style>
-        @media only screen and (max-width: 600px) {
-            .container {
-                width: 100% !important;
-                padding: 20px !important;
-            }
-            .button {
-                display: block !important;
-                width: 100% !important;
-                text-align: center !important;
-            }
-        }
-    </style>
 </head>
 <body style="margin:0; padding:0; font-family: 'Segoe UI', Arial, sans-serif; background-color:#f7f9fc;">
   <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f7f9fc;">
@@ -306,20 +80,13 @@ const getEmailTemplate = (content, title = "") => {
 </body>
 </html>
 `;
-};
 
 /**
  * @function sendPasswordResetEmail
  * @description Sends password reset email for HUGO.
  */
 exports.sendPasswordResetEmail = async (toEmail, resetToken) => {
-  console.log(`\n🔐 ========== PASSWORD RESET EMAIL ==========`);
-  console.log(`   To: ${toEmail}`);
-  console.log(`   Token: ${resetToken.substring(0, 10)}...`);
-
   const resetLink = `${process.env.FRONTEND_URL}/super-admin/reset-password?token=${resetToken}`;
-  console.log(`   Reset Link: ${resetLink}`);
-
   const content = `
     <div style="text-align:center;">
       <h2 style="color:#2d3748; font-size:24px; margin-bottom:20px; font-weight:600;">Reset Your Password</h2>
@@ -336,25 +103,17 @@ exports.sendPasswordResetEmail = async (toEmail, resetToken) => {
       <p style="color:#718096; font-size:14px; margin:20px 0;">
         This reset link is valid for 1 hour. If you didn't request it, you can safely ignore this email ❤️
       </p>
+
+      <p>${resetToken}</p>
       
-      <div style="background:#f8f9fa; padding:15px; border-radius:8px; margin-top:20px;">
-        <p style="margin:0; color:#6c757d; font-size:12px;">
-          Or copy this token manually: <code style="background:#e9ecef; padding:2px 6px; border-radius:4px;">${resetToken}</code>
-        </p>
-      </div>
     </div>
   `;
 
-  const result = await sendEmail({
+  return sendEmail({
     to: toEmail,
     subject: "Reset Your HUGO Password ❤️",
     html: getEmailTemplate(content, "Password Reset"),
   });
-
-  console.log(
-    `📧 Password reset email result: ${result ? "✅ SUCCESS" : "❌ FAILED"}`
-  );
-  return result;
 };
 
 /**
@@ -362,10 +121,6 @@ exports.sendPasswordResetEmail = async (toEmail, resetToken) => {
  * @description Generates a styled OTP (One-Time Password) email using HUGO's branding.
  */
 exports.sendOTPEmail = async (toEmail, otp) => {
-  console.log(`\n📨 ========== OTP EMAIL ==========`);
-  console.log(`   To: ${toEmail}`);
-  console.log(`   OTP: ${otp}`);
-
   const content = `
     <div style="text-align: center;">
         <h2 style="color: #2d3748; font-size: 24px; margin-bottom: 20px; font-weight: 600;">Your HUGO Verification Code</h2>
@@ -390,14 +145,11 @@ exports.sendOTPEmail = async (toEmail, otp) => {
     </div>
   `;
 
-  const result = await sendEmail({
+  return sendEmail({
     to: toEmail,
     subject: "Your HUGO Verification Code ❤️",
     html: getEmailTemplate(content, "HUGO Verification"),
   });
-
-  console.log(`📧 OTP email result: ${result ? "✅ SUCCESS" : "❌ FAILED"}`);
-  return result;
 };
 
 /**
@@ -410,12 +162,6 @@ exports.sendUserStatusUpdateEmail = async (
   warningCount = 0,
   warningMessage = ""
 ) => {
-  console.log(`\n📢 ========== STATUS UPDATE EMAIL ==========`);
-  console.log(`   To: ${toEmail}`);
-  console.log(`   Status: ${status}`);
-  console.log(`   Warning Count: ${warningCount}`);
-  console.log(`   Warning Message: ${warningMessage}`);
-
   let subject, content;
 
   switch (status) {
@@ -524,73 +270,12 @@ exports.sendUserStatusUpdateEmail = async (
       break;
 
     default:
-      console.log(`❌ Unknown status: ${status}`);
       return false;
   }
 
-  const result = await sendEmail({
+  return sendEmail({
     to: toEmail,
     subject: subject,
     html: getEmailTemplate(content, "Account Status Update"),
   });
-
-  console.log(
-    `📧 Status update email result: ${result ? "✅ SUCCESS" : "❌ FAILED"}`
-  );
-  return result;
 };
-
-/**
- * @function testEmailConnection
- * @description Test email connection and configuration
- */
-exports.testEmailConnection = async () => {
-  console.log("\n🧪 ========== MANUAL EMAIL TEST ==========");
-  const result = await initializeTransporter();
-
-  if (result) {
-    console.log("✅ EMAIL SYSTEM: OPERATIONAL");
-    console.log(`   Active Configuration: ${activeConfigName}`);
-    return {
-      success: true,
-      message: "Email system is operational",
-      config: activeConfigName,
-    };
-  } else {
-    console.log("❌ EMAIL SYSTEM: FAILED");
-    return {
-      success: false,
-      message: "Email system failed to initialize",
-    };
-  }
-};
-
-/**
- * @function getEmailStatus
- * @description Get current email system status
- */
-exports.getEmailStatus = () => {
-  return {
-    initialized: !!activeTransporter,
-    config: activeConfigName,
-    emailUser: process.env.EMAIL_USER,
-    hasPassword: !!process.env.EMAIL_PASS,
-  };
-};
-
-// Initialize transporter when module loads
-console.log("\n🚀 Initializing email system...");
-setTimeout(() => {
-  initializeTransporter().then((transporter) => {
-    if (transporter) {
-      console.log("\n🎉 ========== EMAIL SYSTEM READY ==========");
-      console.log(`✅ Configuration: ${activeConfigName}`);
-      console.log(`📧 Ready to send emails from: ${process.env.EMAIL_USER}`);
-    } else {
-      console.log("\n💥 ========== EMAIL SYSTEM FAILED ==========");
-      console.log("❌ Please check your configuration and try again");
-    }
-  });
-}, 1000);
-
-console.log("✅ Email helper module loaded successfully");
