@@ -1,0 +1,106 @@
+/*
+ * Dashboard Layout Styles (Cleaned & Optimized)
+ *
+ * Manages layout structure (positioning, responsiveness, spacing)
+ * Sidebar visual styles are handled in Sidebar.utility.css
+ */
+
+@import url("../../styles/global.styles.css");
+
+.dashboard-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: relative;
+  background-color: var(--white);
+  overflow: hidden;
+}
+
+.dashboard-container {
+  display: flex;
+  flex: 1;
+  position: relative;
+  overflow: visible;
+}
+
+.sidebar-container {
+  position: fixed;
+  top: var(--header-height, 64px);
+  left: 0;
+  height: calc(100vh - var(--header-height, 64px));
+  width: var(--sidebar-width, 250px);
+  z-index: 100;
+  transition: transform 0.3s ease, width 0.3s ease;
+  overflow: hidden;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: var(--header-height, 64px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  display: none;
+}
+
+.content {
+  flex: 1;
+  margin-left: var(--sidebar-width, 250px);
+  padding: var(--spacing-lg);
+  padding-top: calc(var(--header-height, 64px) + var(--spacing-lg));
+  position: relative;
+  z-index: 1;
+  background-color: var(--gray-50);
+  height: calc(100vh - var(--header-height, 64px));
+  transition: margin-left 0.3s ease, padding 0.3s ease;
+  overflow-y: auto; /* Change this line */
+  overflow-x: hidden;
+}
+
+.content > * {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+@media (max-width: 1023px) {
+  .sidebar-container {
+    width: 280px;
+  }
+
+  .content {
+    margin-left: 0;
+    padding: var(--spacing-md);
+    padding-top: calc(var(--header-height, 64px) + var(--spacing-md));
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+}
+
+@media (max-width: 576px) {
+  .sidebar-container {
+    width: 90px;
+  }
+
+  .content {
+    padding: var(--spacing-sm);
+    padding-top: calc(var(--header-height, 64px) + var(--spacing-xl));
+    border: 2px solid red;
+    width: 20px;
+  }
+
+  .dashboard-container {
+    overflow: visible; /* Prevent clipping of content */
+  }
+
+  .sidebar-overlay {
+    display: none; /* Hide overlay on very small screens */
+  }
+
+  .sidebar-overlay {
+    display: none;
+  }
+}

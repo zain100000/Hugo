@@ -28,9 +28,27 @@ A Node.js RESTful API for managing a real-time voice & video chat social platfor
 ## 📁 Project Structure
 
 📦hugo-backend
+ ┣ 📂config
+ ┃ ┗ 📜referral.config.js
  ┣ 📂controllers
- ┃ ┗ 📂super-admin-controller
+ ┃ ┣ 📂chat-controller
+ ┃ ┃ ┗ 📜chat.controller.js
+ ┃ ┣ 📂club-controller
+ ┃ ┃ ┗ 📜club.controller.js
+ ┃ ┣ 📂coin-package-controller
+ ┃ ┃ ┗ 📜coin.package.controller.js
+ ┃ ┣ 📂follower-controller
+ ┃ ┃ ┗ 📜follower.controller.js
+ ┃ ┣ 📂media-controller
+ ┃ ┃ ┗ 📜media.controller.js
+ ┃ ┣ 📂otp-controller
+ ┃ ┃ ┗ 📜otp.controller.js
+ ┃ ┣ 📂super-admin-controller
  ┃ ┃ ┗ 📜super-admin.controller.js
+ ┃ ┣ 📂transaction-controller
+ ┃ ┃ ┗ 📜transaction.controller.js
+ ┃ ┗ 📂user-controller
+ ┃ ┃ ┗ 📜user.controller.js
  ┣ 📂helpers
  ┃ ┣ 📂email-helper
  ┃ ┃ ┗ 📜email.helper.js
@@ -42,17 +60,49 @@ A Node.js RESTful API for managing a real-time voice & video chat social platfor
  ┃ ┣ 📜auth.middleware.js
  ┃ ┗ 📜security.middleware.js
  ┣ 📂models
- ┃ ┗ 📂super-admin-model
+ ┃ ┣ 📂chat-model
+ ┃ ┃ ┗ 📜chat.model.js
+ ┃ ┣ 📂club-chat-model
+ ┃ ┃ ┗ 📜club.chat.model.js
+ ┃ ┣ 📂club-model
+ ┃ ┃ ┗ 📜club.model.js
+ ┃ ┣ 📂coin-package-model
+ ┃ ┃ ┗ 📜coin.package.model.js
+ ┃ ┣ 📂media-model
+ ┃ ┃ ┗ 📜media.model.js
+ ┃ ┣ 📂super-admin-model
  ┃ ┃ ┗ 📜super-admin.model.js
+ ┃ ┣ 📂transaction-model
+ ┃ ┃ ┗ 📜transaction.model.js
+ ┃ ┗ 📂user-model
+ ┃ ┃ ┗ 📜user.model.js
  ┣ 📂routes
- ┃ ┗ 📂super-admin-route
+ ┃ ┣ 📂coin-package-route
+ ┃ ┃ ┗ 📜coin.package.route.js
+ ┃ ┣ 📂follower-route
+ ┃ ┃ ┗ 📜follower.route.js
+ ┃ ┣ 📂media-route
+ ┃ ┃ ┗ 📜media.route.js
+ ┃ ┣ 📂otp-route
+ ┃ ┃ ┗ 📜otp.route.js
+ ┃ ┣ 📂super-admin-route
  ┃ ┃ ┗ 📜super-admin.route.js
+ ┃ ┣ 📂transaction-route
+ ┃ ┃ ┗ 📜transaction.route.js
+ ┃ ┗ 📂user-route
+ ┃ ┃ ┗ 📜user.route.js
  ┣ 📂utilities
- ┃ ┗ 📂cloudinary
+ ┃ ┣ 📂cloudinary
  ┃ ┃ ┗ 📜cloudinary.utility.js
+ ┃ ┣ 📂otp
+ ┃ ┃ ┗ 📜otp.utility.js
+ ┃ ┗ 📂socket
+ ┃ ┃ ┣ 📜socket.manager.utility.js
+ ┃ ┃ ┗ 📜socket.utlity.js
  ┣ 📜.env
  ┣ 📜.gitignore
  ┣ 📜app.js
+ ┣ 📜package-lock.json
  ┣ 📜package.json
  ┗ 📜README.md
 

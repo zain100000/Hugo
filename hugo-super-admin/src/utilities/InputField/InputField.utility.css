@@ -1,0 +1,138 @@
+/**
+ * InputField Stylesheet
+ *
+ * Provides styles for the reusable InputField component.
+ * Supports:
+ * - Standard inputs with floating labels
+ * - Dropdowns (select inputs)
+ * - Multiline textarea fields
+ *
+ * Features:
+ * - Floating label animation when focused or filled
+ * - Consistent styling with global design tokens
+ * - Support for full-width or inline layouts
+ */
+
+/**
+ * InputField Stylesheet
+ * Fixed to handle browser autofill styling issues
+ */
+
+@import url("../../styles/global.styles.css");
+
+.custom-input-wrapper {
+  width: 100%;
+}
+
+.custom-input {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid var(--gray);
+  border-radius: var(--radius-md, 8px);
+  font-size: var(--font-size-base, 1rem);
+  font-family: var(--font-family);
+  outline: none;
+  background: transparent !important;
+  color: var(--white);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.custom-input::placeholder {
+  color: var(--white) !important;
+  opacity: 0.8;
+}
+
+/* Keyframes to detect autofill */
+@keyframes autoFillStart {
+  from {
+    /* Empty */
+  }
+  to {
+    /* Empty */
+  }
+}
+
+@keyframes onAutoFillStart {
+  from {
+    /* Empty */
+  }
+  to {
+    /* Empty */
+  }
+}
+
+/* Override browser autofill styles */
+.custom-input:-webkit-autofill,
+.custom-input:-webkit-autofill:hover,
+.custom-input:-webkit-autofill:focus,
+.custom-input:-webkit-autofill:active {
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: var(--white) !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  color: var(--white) !important;
+  box-shadow: 0 0 0 1000px transparent inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.custom-input:-internal-autofill-selected {
+  background-color: transparent !important;
+  background-image: none !important;
+  color: var(--white) !important;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--white);
+  font-size: 1.2rem;
+  pointer-events: none;
+  z-index: 2;
+  top: 11px;
+}
+
+.custom-input:focus {
+  border-color: var(--primary);
+}
+
+.input-container {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.floating-label {
+  position: absolute;
+  top: 14px;
+  left: 40px;
+  font-size: 0.85rem;
+  color: var(--white);
+  padding: 0 4px;
+  pointer-events: none;
+  transition: all 0.2s ease;
+  background: transparent;
+}
+
+.input-container.has-value .floating-label,
+.input-container:focus-within .floating-label {
+  top: -8px;
+  left: 12px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--white);
+  background: transparent;
+}
+
+.input-container .floating-label {
+  z-index: 1;
+}
+
+.input-container.no-float .floating-label {
+  display: none;
+}
+
+/* Ensure dropdown options have dark text for readability */
+.custom-input option {
+  color: var(--dark);
+  background-color: var(--white);
+}
