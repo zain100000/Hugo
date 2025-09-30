@@ -1,0 +1,293 @@
+/**
+ * ManageTransactions Screen Stylesheet
+ *
+ * Defines the styling for the Manage Transactions screen.
+ * Handles:
+ * - Transactions table
+ * - Action buttons (approve/reject)
+ * - Status labels
+ * - Receipt thumbnails
+ * - Empty state and loader
+ */
+
+@import url("../../../styles/global.styles.css");
+
+/* Container - Kept the same */
+#transactions .transactions-container {
+  padding: 28px;
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+/* Header - Kept the same */
+#transactions .transactions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+#transactions .transactions-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+  padding-left: 10px;
+  border-left: 4px solid var(--primary);
+  letter-spacing: 0.5px;
+}
+
+/* Loader - Kept the same */
+#transactions .loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+/* Table */
+#transactions .table-responsive {
+  max-height: 500px;
+  overflow-y: auto;
+  border-radius: 12px;
+}
+
+#transactions .transactions-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 6px; /* Reduced spacing between rows */
+  table-layout: fixed; /* Ensures equal column width distribution */
+}
+
+#transactions .transactions-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+#transactions .transactions-table th,
+#transactions .transactions-table td {
+  padding: 10px 12px; /* Reduced padding from 12px 16px */
+  vertical-align: middle;
+  text-align: center; /* Center-align content for equal look */
+  font-weight: 600;
+  /* Equal column distribution is handled by `table-layout: fixed` */
+}
+
+/* Override specific columns for better flow */
+#transactions .transactions-table th:nth-child(2), /* User column */
+#transactions .transactions-table td:nth-child(2) {
+  text-align: left; /* Keep user cell left-aligned for avatar/name */
+  padding-left: 16px; /* Slightly more padding for text to breathe */
+}
+
+#transactions .transactions-table th:first-child, /* TID column */
+#transactions .transactions-table td:first-child {
+  width: 100px; /* Assign a specific width to TID since it's short */
+}
+
+#transactions .transactions-table th:last-child, /* Actions column */
+#transactions .transactions-table td:last-child {
+  width: 200px; /* Assign a specific width to Actions */
+}
+
+#transactions .transactions-table tbody tr {
+  background: var(--white);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 55px; /* Reduced consistent row height from 64px */
+}
+
+#transactions .transactions-table tbody tr:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* User cell */
+#transactions .user-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; /* Aligned left */
+  gap: 8px; /* Increased spacing between avatar and text */
+  margin-top: 0; /* Removed margin to center in new row height */
+}
+
+#transactions .user-avatar {
+  width: 36px; /* Slightly reduced avatar size */
+  height: 36px; /* Slightly reduced avatar size */
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  margin-top: 0; /* Removed margin to center in new row height */
+}
+
+#transactions .user-cell div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 0; /* Removed margin to center in new row height */
+}
+
+/* Receipt - Kept the same */
+#transactions .receipt-thumb {
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  object-fit: cover;
+  border: 1px solid #e5e7eb;
+  transition: transform 0.2s ease;
+  display: block;
+  margin: 0 auto; /* Ensures center alignment */
+}
+
+#transactions .receipt-thumb:hover {
+  transform: scale(1.1);
+}
+
+/* Actions */
+#transactions .actions {
+  display: flex;
+  justify-content: center; /* Center-aligned for the actions column */
+  align-items: center;
+  gap: 10px; /* Reduced gap */
+}
+
+#transactions .action-btn {
+  width: 40px; /* Reduced button size */
+  height: 40px; /* Reduced button size */
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease-in-out;
+}
+
+#transactions .action-btn:hover {
+  transform: scale(1.15);
+}
+
+#transactions .approve-btn {
+  color: #10b981;
+}
+
+#transactions .reject-btn {
+  color: #ef4444;
+}
+
+#transactions .delete-btn {
+  color: #ef4444;
+}
+
+/* Status labels - Kept the same */
+#transactions .status {
+  display: inline-block;
+  text-align: center;
+  min-width: 80px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+#transactions .status-pending {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+#transactions .status-approved {
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.1);
+}
+
+#transactions .status-rejected {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+}
+
+/* No transactions - Kept the same */
+#transactions .no-transactions-found {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 24px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+#transactions .no-transactions-found .empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: pulseScale 2s infinite;
+}
+
+#transactions .no-transactions-found i {
+  font-size: 60px;
+  color: var(--primary);
+  margin-bottom: 12px;
+  animation: bounce 2s infinite;
+}
+
+#transactions .no-transactions-found p {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+  color: var(--info-dark);
+  text-align: center;
+}
+
+/* Animations - Kept the same */
+@keyframes pulseScale {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Responsive - Kept the same */
+@media (max-width: 768px) {
+  #transactions .transactions-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #transactions .transactions-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  #transactions .actions {
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  #transactions .transactions-table th,
+  #transactions .transactions-table td {
+    padding: 10px 12px;
+  }
+}

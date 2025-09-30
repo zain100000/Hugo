@@ -22,6 +22,7 @@
 
 .custom-input-wrapper {
   width: 100%;
+  display: inline-block;
 }
 
 .custom-input {
@@ -36,33 +37,31 @@
   color: var(--white);
   transition: all 0.3s ease;
   position: relative;
+  appearance: none; /* ✅ Removes native dropdown arrow */
+  box-sizing: border-box; /* ✅ ensures width applies correctly */
 }
 
 .custom-input::placeholder {
-  color: var(--white) !important;
-  opacity: 0.8;
+  color: inherit !important;
+  opacity: 0.7;
 }
 
-/* Keyframes to detect autofill */
+/* Autofill keyframes */
 @keyframes autoFillStart {
   from {
-    /* Empty */
   }
   to {
-    /* Empty */
   }
 }
 
 @keyframes onAutoFillStart {
   from {
-    /* Empty */
   }
   to {
-    /* Empty */
   }
 }
 
-/* Override browser autofill styles */
+/* Autofill fixes */
 .custom-input:-webkit-autofill,
 .custom-input:-webkit-autofill:hover,
 .custom-input:-webkit-autofill:focus,
@@ -76,20 +75,14 @@
   transition: background-color 5000s ease-in-out 0s;
 }
 
-.custom-input:-internal-autofill-selected {
-  background-color: transparent !important;
-  background-image: none !important;
-  color: var(--white) !important;
-}
-
 .input-icon {
   position: absolute;
   left: 12px;
-  color: var(--white);
   font-size: 1.2rem;
   pointer-events: none;
   z-index: 2;
   top: 11px;
+  color: inherit;
 }
 
 .custom-input:focus {
@@ -99,6 +92,7 @@
 .input-container {
   position: relative;
   margin-bottom: 1.5rem;
+  width: 100%;
 }
 
 .floating-label {
@@ -131,7 +125,23 @@
   display: none;
 }
 
-/* Ensure dropdown options have dark text for readability */
+/* Dropdown-specific styles */
+.dropdown-input {
+  cursor: pointer;
+  width: 100%; /* ✅ dropdown respects wrapper width */
+}
+
+/* Custom dropdown arrow */
+.dropdown-arrow {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.9rem;
+  color: var(--white);
+  pointer-events: none;
+}
+
 .custom-input option {
   color: var(--dark);
   background-color: var(--white);

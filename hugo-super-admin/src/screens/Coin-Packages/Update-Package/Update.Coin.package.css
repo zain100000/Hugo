@@ -1,0 +1,114 @@
+/**
+ * UpdateCoinPackage Screen Stylesheet
+ *
+ * Defines the styling for the Update Coin Package form.
+ * Built on AddCoinPackage styles with subtle distinctions for clarity.
+ *
+ * Features:
+ * - Prefilled form fields
+ * - Highlighted "update mode" theme
+ * - Responsive grid layout
+ * - Animated transitions
+ * - Enhanced button hover effects
+ */
+
+@import url("../../../styles/global.styles.css");
+
+#update-coin-package {
+  background: var(--white);
+  padding: 24px 28px;
+  border-radius: 20px;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.12);
+  margin: 20px auto;
+  max-width: 900px;
+  animation: fadeIn 0.6s ease-in-out;
+  overflow: hidden;
+}
+
+#update-coin-package .container {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+#update-coin-package .package-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--secondary); /* ✅ make update title slightly different */
+  margin-bottom: 18px;
+  padding-left: 12px;
+  border-left: 4px solid var(--secondary);
+  letter-spacing: 0.5px;
+  animation: slideIn 0.5s ease-in-out;
+}
+
+#update-coin-package .package-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+#update-coin-package .row {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+}
+
+#update-coin-package .col-md-6 {
+  flex: 1;
+  min-width: 0;
+}
+
+#update-coin-package .text-center button {
+  border-radius: 10px;
+  font-size: 16px;
+  padding: 10px 20px;
+  transition: all 0.25s ease-in-out;
+  background-color: var(--secondary);
+  color: var(--white);
+}
+
+#update-coin-package .text-center button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #update-coin-package {
+    padding: 18px;
+    margin: 12px;
+  }
+
+  #update-coin-package .package-title {
+    font-size: 22px;
+  }
+
+  #update-coin-package .row {
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+  }
+}

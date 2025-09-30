@@ -55,7 +55,7 @@
   background-color: var(--gray-50);
   height: calc(100vh - var(--header-height, 64px));
   transition: margin-left 0.3s ease, padding 0.3s ease;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 .content > * {

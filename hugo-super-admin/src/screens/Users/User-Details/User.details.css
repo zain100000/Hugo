@@ -1,0 +1,203 @@
+/**
+ * @file UserDetails.css
+ * @description Stylesheet for the UserDetails component.
+ * Provides styling for user profile display, details table, media gallery,
+ * loader, responsive design, scrollable content, and general layout.
+ */
+
+@import url("../../../styles/global.styles.css");
+
+/* Main Container */
+#user-detail {
+  padding: 28px;
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  max-height: 80vh; /* Limits height for scrolling */
+  overflow-y: auto; /* Makes content scrollable if overflow */
+}
+
+/* Title */
+#user-detail .users-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0 0 20px 0;
+  padding-left: 10px;
+  border-left: 4px solid var(--primary);
+}
+
+/* Content Container */
+#user-detail .content-container {
+  display: flex;
+  gap: 40px;
+  padding: 20px 0;
+  flex-wrap: wrap;
+}
+
+/* Profile Image */
+#user-detail .user-image-container {
+  flex: 0 0 150px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--light-bg);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+#user-detail .user-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* Details Table */
+#user-detail .details-container {
+  flex: 1;
+}
+
+#user-detail .details-table {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+#user-detail .detail-row {
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+#user-detail .detail-label {
+  flex: 0 0 150px;
+  padding: 15px 20px;
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+#user-detail .detail-value {
+  flex: 1;
+  padding: 15px 20px;
+  background-color: var(--white);
+  color: var(--text-primary);
+  font-size: 15px;
+  border-right: 1px solid var(--light-gray);
+}
+
+/* Social Stats Styling */
+#user-detail .detail-row:nth-child(7) .detail-value:nth-child(2),
+#user-detail .detail-row:nth-child(7) .detail-value:nth-child(4),
+#user-detail .detail-row:nth-child(8) .detail-value:nth-child(2) {
+  color: #16a34a; /* Green for positive stats */
+  font-weight: 600;
+}
+
+#user-detail .detail-row:nth-child(8) .detail-value:nth-child(2),
+#user-detail .detail-row:nth-child(8) .detail-value:nth-child(4) {
+  color: #dc2626; /* Red for warnings/blocked */
+  font-weight: 600;
+}
+
+#user-detail .detail-row .detail-value:last-child {
+  border-right: none;
+}
+
+#user-detail .description {
+  line-height: 1.6;
+}
+
+/* Media Gallery */
+#user-detail .media-gallery {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--light-gray);
+}
+
+#user-detail .media-gallery h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--primary);
+}
+
+#user-detail .media-grid {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+#user-detail .media-item {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+#user-detail .media-item:hover {
+  transform: scale(1.05);
+}
+
+/* No Media Placeholder */
+#user-detail .no-media {
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 10px 0;
+  font-style: italic;
+}
+
+/* Loader */
+#user-detail .loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+}
+
+/* Not Found */
+#user-detail .not-found {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: var(--text-secondary);
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  #user-detail .content-container {
+    flex-direction: column;
+  }
+
+  #user-detail .user-image-container {
+    margin: 0 auto 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  #user-detail .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #user-detail .detail-label,
+  #user-detail .detail-value {
+    width: 100%;
+    flex: none;
+    border-right: none;
+    border-bottom: 1px solid var(--light-gray);
+  }
+
+  #user-detail .detail-value:last-child {
+    border-bottom: none;
+  }
+}

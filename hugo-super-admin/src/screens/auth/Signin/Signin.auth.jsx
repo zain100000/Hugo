@@ -8,7 +8,7 @@
  * @component
  * @example
  * return (
- *   <Signin />
+ * <Signin />
  * )
  */
 
@@ -39,8 +39,11 @@ const Signin = () => {
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
+  // This useEffect seems intended for conditional button disabling, but is currently unused.
+  // It's kept here as it was in the original code, without the console.log.
   useEffect(() => {
     const hasErrors = emailError || passwordError || !email || !password;
+    // console.log(hasErrors); // Removed console.log
   }, [emailError, passwordError, email, password]);
 
   /**
@@ -76,7 +79,7 @@ const Signin = () => {
     if (errorKeys.length > 0) {
       const firstErrorKey = errorKeys[0];
       toast.error(errors[firstErrorKey]);
-      setLoading(false);
+      // Removed redundant setLoading(false) here, as loading is set to true immediately after
       return;
     }
 
@@ -135,7 +138,7 @@ const Signin = () => {
         toast.error(errorMessage);
       }
     } catch (err) {
-      console.error("An unexpected error occurred during login:", err);
+      // console.error("An unexpected error occurred during login:", err); // Removed console.error
       toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);

@@ -20,19 +20,19 @@
 
 .card-container.small .custom-card {
   max-width: 240px;
-  height: 35vh;
+  height: 40vh;
   min-height: 200px;
 }
 
 .card-container.medium .custom-card {
   max-width: 300px;
-  height: 35vh;
+  height: 40vh;
   min-height: 220px;
 }
 
 .card-container.large .custom-card {
   max-width: 360px;
-  height: 35vh;
+  height: 40vh;
   min-height: 240px;
 }
 

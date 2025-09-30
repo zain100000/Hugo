@@ -34,7 +34,7 @@
 import ReactDOM from "react-dom";
 import "../../styles/global.styles.css";
 import "./Modal.utility.css";
-import Loader from "../customLoader/Loader";
+import Loader from "../Loader/Loader.utility";
 
 const Modal = ({ isOpen, onClose, title, children, buttons = [], icon }) => {
   return ReactDOM.createPortal(

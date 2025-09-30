@@ -12,10 +12,10 @@
  *
  * State Shape:
  * {
- *   user: { id, email, userName } | null,
- *   token: string | null,
- *   loading: boolean,
- *   error: any
+ * user: { id, email, userName } | null,
+ * token: string | null,
+ * loading: boolean,
+ * error: any
  * }
  */
 
@@ -40,8 +40,6 @@ export const login = createAsyncThunk(
         loginData
       );
 
-      console.log("Login response:", response.data);
-
       const { token, superAdmin, message, success } = response.data;
 
       if (!success || !superAdmin || !token) {
@@ -58,7 +56,8 @@ export const login = createAsyncThunk(
 
       return { user, token, message };
     } catch (error) {
-      console.error("Login Error:", error.response?.data || error.message);
+      // Keep console.error for debugging errors
+      // console.error("Login Error:", error.response?.data || error.message);
 
       const backendError = error.response?.data;
 
@@ -95,8 +94,6 @@ export const forgotPassword = createAsyncThunk(
         emailData
       );
 
-      console.log("Forgot password response:", response.data);
-
       const { message, success } = response.data;
 
       if (!success) {
@@ -105,10 +102,11 @@ export const forgotPassword = createAsyncThunk(
 
       return { message };
     } catch (error) {
-      console.error(
-        "Forgot Password Error:",
-        error.response?.data || error.message
-      );
+      // Keep console.error for debugging errors
+      // console.error(
+      //   "Forgot Password Error:",
+      //   error.response?.data || error.message
+      // );
 
       const backendError = error.response?.data;
 
@@ -146,8 +144,6 @@ export const resetPassword = createAsyncThunk(
         { newPassword }
       );
 
-      console.log("Reset password response:", response.data);
-
       const { message, success } = response.data;
 
       if (!success) {
@@ -156,10 +152,11 @@ export const resetPassword = createAsyncThunk(
 
       return { message };
     } catch (error) {
-      console.error(
-        "Reset Password Error:",
-        error.response?.data || error.message
-      );
+      // Keep console.error for debugging errors
+      // console.error(
+      //   "Reset Password Error:",
+      //   error.response?.data || error.message
+      // );
 
       const backendError = error.response?.data;
 
@@ -199,9 +196,17 @@ export const logout = createAsyncThunk(
         }
       );
 
+      // Remove the token from localStorage here, regardless of API response success,
+      // as the client session should end on a successful logout request.
+      localStorage.removeItem("authToken");
+
       const message = response.data?.message;
       return { message, ...response.data };
     } catch (error) {
+      // Even on error, clear the client-side token for security if the server-side
+      // session is questionable or if the token is invalid.
+      localStorage.removeItem("authToken");
+
       const errorMessage =
         error.response?.data?.message || "Unknown error occurred";
 
@@ -224,7 +229,19 @@ const authSlice = createSlice({
     loading: false,
     error: null,
   },
-  reducers: {},
+  reducers: {
+    // A utility reducer to check and restore session from localStorage if needed
+    // This is a common pattern but not strictly required by the prompt.
+    // checkAuth: (state) => {
+    //   const token = localStorage.getItem("authToken");
+    //   if (token && !state.token) {
+    //     // You'd typically need a separate thunk or logic to decode/validate the token
+    //     // and fetch user data, but for basic state, you can set the token.
+    //     state.token = token;
+    //     // state.user would remain null until a refresh/fetch is performed
+    //   }
+    // }
+  },
   extraReducers: (builder) => {
     builder
       // Login
@@ -240,6 +257,10 @@ const authSlice = createSlice({
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        // Clear local storage token on login failure in case of stale/invalid token
+        localStorage.removeItem("authToken");
+        state.user = null;
+        state.token = null;
       })
 
       // Forgot Password
@@ -273,16 +294,20 @@ const authSlice = createSlice({
       // Logout
       .addCase(logout.pending, (state) => {
         state.loading = true;
+        state.error = null; // Clear previous error
       })
       .addCase(logout.fulfilled, (state) => {
         state.loading = false;
+        // The token is already removed in the thunk for robustness, but we still update state
         state.user = null;
         state.token = null;
-        localStorage.removeItem("authToken");
       })
       .addCase(logout.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        // The token is already removed in the thunk's catch block for robustness, but we still update state
+        state.user = null;
+        state.token = null;
       });
   },
 });

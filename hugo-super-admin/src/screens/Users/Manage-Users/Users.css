@@ -1,0 +1,591 @@
+/**
+ * ManageUsers Screen Stylesheet
+ *
+ * Defines the styling for the Manage Users screen.
+ * Handles:
+ * - Users table
+ * - Action buttons (suspend/ban/activate)
+ * - Status labels
+ * - User avatars and info
+ * - Empty state and loader
+ */
+
+@import url("../../../styles/global.styles.css");
+
+/* Container */
+#manage-users .users-container {
+  padding: 28px;
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+/* Header */
+#manage-users .users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+#manage-users .users-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+  padding-left: 10px;
+  border-left: 4px solid var(--primary);
+  letter-spacing: 0.5px;
+}
+
+/* Loader */
+#manage-users .loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+/* Table */
+#manage-users .table-responsive {
+  max-height: 500px;
+  overflow-y: auto;
+  border-radius: 12px;
+}
+
+#manage-users .users-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 6px;
+  table-layout: fixed;
+}
+
+#manage-users .users-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+#manage-users .users-table th,
+#manage-users .users-table td {
+  padding: 10px 12px;
+  vertical-align: middle;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Columns - Updated for removed columns */
+#manage-users .users-table th:nth-child(1),
+#manage-users .users-table td:nth-child(1) {
+  width: 100px;
+  text-align: center;
+}
+
+#manage-users .users-table th:nth-child(2),
+#manage-users .users-table td:nth-child(2) {
+  width: 250px;
+  text-align: left;
+  padding-left: 16px;
+}
+
+#manage-users .users-table th:nth-child(3),
+#manage-users .users-table td:nth-child(3) {
+  width: 100px;
+}
+
+#manage-users .users-table th:nth-child(4),
+#manage-users .users-table td:nth-child(4) {
+  width: 80px;
+}
+
+#manage-users .users-table th:nth-child(5),
+#manage-users .users-table td:nth-child(5) {
+  width: 100px;
+}
+
+#manage-users .users-table th:nth-child(6),
+#manage-users .users-table td:nth-child(6) {
+  width: 100px;
+}
+
+#manage-users .users-table th:last-child,
+#manage-users .users-table td:last-child {
+  width: 220px;
+}
+
+/* Rows */
+#manage-users .users-table tbody tr {
+  background: var(--white);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  height: 55px;
+}
+
+#manage-users .users-table tbody tr:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* User cell - Updated to include email */
+#manage-users .user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#manage-users .user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid #e5e7eb;
+}
+
+#manage-users .user-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#manage-users .user-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #1f2937;
+  margin-bottom: 2px;
+}
+
+#manage-users .user-email {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Status labels */
+#manage-users .status {
+  display: inline-block;
+  text-align: center;
+  min-width: 80px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+#manage-users .status-active {
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.1);
+}
+
+#manage-users .status-suspended {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+#manage-users .status-banned {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+}
+
+#manage-users .status-warned {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* Warnings count */
+#manage-users .warnings-cell {
+  text-align: center;
+}
+
+#manage-users .warnings-count {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(156, 163, 175, 0.1);
+  color: #6b7280;
+  min-width: 24px;
+}
+
+#manage-users .warnings-count.warnings-medium {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+#manage-users .warnings-count.warnings-high {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+/* Verification */
+#manage-users .verification {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+#manage-users .verification.verified {
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+}
+
+#manage-users .verification.not-verified {
+  background: rgba(156, 163, 175, 0.1);
+  color: #6b7280;
+}
+
+/* Actions */
+#manage-users .actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+#manage-users .action-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease-in-out;
+}
+
+#manage-users .action-btn:hover {
+  transform: scale(1.15);
+}
+
+#manage-users .action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Button colors */
+.view-btn {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.view-btn:hover {
+  background-color: rgba(59, 130, 246, 0.2);
+}
+
+.warn-btn {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+.warn-btn:hover {
+  background-color: rgba(245, 158, 11, 0.2);
+}
+
+.suspend-btn {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+.ban-btn {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.activate-btn {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+}
+
+/* No users found */
+#manage-users .no-users-found {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 24px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+#manage-users .no-users-found .empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: pulseScale 2s infinite;
+}
+
+#manage-users .no-users-found i {
+  font-size: 60px;
+  color: var(--primary);
+  margin-bottom: 12px;
+  animation: bounce 2s infinite;
+}
+
+#manage-users .no-users-found p {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+  color: var(--info-dark);
+  text-align: center;
+}
+
+/* Modal */
+#manage-users .user-details {
+  background: #f8fafc;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 12px;
+  border-left: 3px solid var(--primary);
+}
+
+#manage-users .user-details p {
+  margin: 4px 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+#manage-users .user-details strong {
+  color: #374151;
+  min-width: 80px;
+  display: inline-block;
+}
+
+#manage-users textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color 0.2s ease;
+}
+
+#manage-users textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Primary button for status update */
+.primary-btn {
+  background-color: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.primary-btn:hover:not(:disabled) {
+  background-color: #0056b3;
+  border-color: #0056b3;
+  transform: translateY(-1px);
+}
+
+.primary-btn:disabled {
+  background-color: #6c757d;
+  border-color: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Warning button for warn user */
+.warning-btn {
+  background-color: #ffc107;
+  color: #212529;
+  border: 1px solid #ffc107;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+}
+
+.warning-btn:hover:not(:disabled) {
+  background-color: #e0a800;
+  border-color: #e0a800;
+  transform: translateY(-1px);
+}
+
+.warning-btn:disabled {
+  background-color: #ffda6a;
+  border-color: #ffda6a;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Loading state for both buttons */
+.primary-btn.loading,
+.warning-btn.loading {
+  position: relative;
+  color: transparent;
+}
+
+.primary-btn.loading::after,
+.warning-btn.loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin-left: -8px;
+  margin-top: -8px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.primary-btn.loading::after {
+  border-top-color: white;
+}
+
+.warning-btn.loading::after {
+  border-top-color: #212529;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Additional styles for warning note */
+.warning-note {
+  color: #dc3545;
+  background-color: #f8d7da;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border-left: 4px solid #dc3545;
+  margin-top: 10px;
+}
+
+.previous-warnings {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border-left: 3px solid #ffc107;
+}
+
+.previous-warnings ul {
+  margin: 5px 0 0 0;
+  padding-left: 20px;
+}
+
+.previous-warnings li {
+  margin-bottom: 3px;
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.user-details {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.user-details p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseScale {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #manage-users .users-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #manage-users .users-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  #manage-users .actions {
+    flex-direction: row;
+    gap: 6px;
+  }
+
+  #manage-users .users-table th,
+  #manage-users .users-table td {
+    padding: 10px 12px;
+  }
+
+  #manage-users .users-table th:nth-child(1),
+  #manage-users .users-table td:nth-child(1),
+  #manage-users .users-table th:nth-child(2),
+  #manage-users .users-table td:nth-child(2),
+  #manage-users .users-table th:nth-child(3),
+  #manage-users .users-table td:nth-child(3) {
+    text-align: center;
+    padding-left: 12px;
+  }
+
+  #manage-users .user-cell {
+    justify-content: center;
+  }
+
+  #manage-users .contact-info {
+    align-items: center;
+  }
+}

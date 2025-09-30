@@ -1,0 +1,236 @@
+/**
+ * ManageCoinPackages Screen Stylesheet
+ *
+ * Defines the styling for the Manage Coin Packages screen.
+ * Includes layout, typography, tables, responsive design, and UI interactions.
+ * Handles styles for:
+ * - Package table (MODIFIED: Equal distribution, centered content, reduced padding)
+ * - Action buttons (edit/delete)
+ * - Active/inactive status labels
+ * - Empty state and loader
+ */
+
+@import url("../../../styles/global.styles.css");
+
+/* Container */
+#coin-packages .coin-packages-container {
+  padding: 28px;
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+/* Header */
+#coin-packages .coin-packages-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+#coin-packages .coin-packages-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+  padding-left: 10px;
+  border-left: 4px solid var(--primary);
+  letter-spacing: 0.5px;
+}
+
+/* Loader */
+#coin-packages .loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+/* Table */
+#coin-packages .coin-packages-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 6px; /* Reduced spacing between rows */
+  table-layout: fixed; /* Ensures equal column width distribution */
+}
+
+/* Make table body scrollable */
+#coin-packages .table-responsive {
+  max-height: 400px; /* adjust height as you like */
+  overflow-y: auto;
+  border-radius: 12px;
+}
+
+/* Sticky header */
+#coin-packages .coin-packages-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+#coin-packages .coin-packages-table th {
+  padding: 10px 12px; /* Reduced padding from 14px */
+  text-align: center; /* Center-aligned for visual balance */
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+#coin-packages .coin-packages-table td {
+  padding: 8px 12px; /* Reduced padding from 12px */
+  border-bottom: none;
+  text-align: center; /* Center-aligned for visual balance */
+  vertical-align: middle;
+  height: 50px; /* Consistent row height */
+}
+
+/* Action button column override to ensure action buttons align nicely */
+#coin-packages .coin-packages-table th:last-child,
+#coin-packages .coin-packages-table td:last-child {
+  width: 100px;
+}
+
+#coin-packages .coin-packages-table tbody tr {
+  background: var(--white);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#coin-packages .coin-packages-table tbody tr:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* Actions */
+#coin-packages .actions {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center the buttons within the cell */
+  gap: 8px; /* Reduced gap */
+}
+
+#coin-packages .action-btn {
+  width: 32px; /* Reduced size */
+  height: 32px; /* Reduced size */
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease-in-out;
+}
+
+#coin-packages .action-btn:hover {
+  transform: scale(1.15);
+}
+
+#coin-packages .edit-btn {
+  background-color: rgba(0, 123, 255, 0.1);
+  color: var(--primary);
+}
+
+#coin-packages .delete-btn {
+  background-color: rgba(255, 0, 0, 0.1);
+  color: var(--error);
+}
+
+/* Status labels */
+#coin-packages .status-active,
+#coin-packages .status-inactive {
+  display: inline-block;
+  min-width: 80px;
+  text-align: center;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+}
+
+#coin-packages .status-active {
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.1);
+}
+
+#coin-packages .status-inactive {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+}
+
+/* Enhanced No Packages Found - Kept the same */
+#coin-packages .no-packages-found {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 24px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+#coin-packages .no-packages-found .empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: pulseScale 2s infinite;
+}
+
+#coin-packages .no-packages-found i {
+  font-size: 60px;
+  color: var(--primary);
+  margin-bottom: 12px;
+  animation: bounce 2s infinite;
+}
+
+#coin-packages .no-packages-found p {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+  color: var(--info-dark);
+  text-align: center;
+}
+
+/* Animations - Kept the same */
+@keyframes pulseScale {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  #coin-packages .coin-packages-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #coin-packages .coin-packages-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  #coin-packages .actions {
+    flex-direction: row;
+    gap: 6px;
+  }
+}

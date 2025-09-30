@@ -1,0 +1,1061 @@
+/**
+ * @file Clubs.css
+ * @description Enhanced Stylesheet for the ManageClubs component with Member Moderation
+ */
+@import url("../../../styles/global.styles.css");
+
+/* ===== CONTAINER & LAYOUT ===== */
+#manage-clubs .clubs-container {
+  padding: 28px;
+  background: var(--white);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+#manage-clubs .clubs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+#manage-clubs .clubs-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0;
+  padding-left: 10px;
+  border-left: 4px solid var(--primary);
+  letter-spacing: 0.5px;
+}
+
+/* ===== LOADER ===== */
+#manage-clubs .loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+/* ===== MAIN TABLE ===== */
+#manage-clubs .table-responsive {
+  max-height: 500px;
+  overflow-y: auto;
+  border-radius: 12px;
+}
+
+#manage-clubs .clubs-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 6px; /* Reduced spacing between rows */
+  table-layout: fixed; /* Ensures equal column width distribution */
+}
+
+#manage-clubs .clubs-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: var(--primary);
+  color: var(--white);
+}
+
+#manage-clubs .clubs-table th {
+  padding: 10px 12px; /* Reduced padding from 12px 16px */
+  vertical-align: middle;
+  text-align: center; /* Center-align content for equal look */
+  font-weight: 600;
+}
+
+/* Column Widths */
+#manage-clubs .clubs-table th:nth-child(1),
+#manage-clubs .clubs-table td:nth-child(1) {
+  width: 100px;
+}
+#manage-clubs .clubs-table th:nth-child(2),
+#manage-clubs .clubs-table td:nth-child(2) {
+  width: 250px;
+  text-align: left;
+  padding-left: 16px;
+}
+#manage-clubs .clubs-table th:nth-child(3),
+#manage-clubs .clubs-table td:nth-child(3) {
+  width: 150px;
+  text-align: left;
+  padding-left: 16px;
+}
+#manage-clubs .clubs-table th:nth-child(4),
+#manage-clubs .clubs-table td:nth-child(4) {
+  width: 100px;
+}
+#manage-clubs .clubs-table th:nth-child(5),
+#manage-clubs .clubs-table td:nth-child(5) {
+  width: 80px;
+}
+#manage-clubs .clubs-table th:nth-child(6),
+#manage-clubs .clubs-table td:nth-child(6) {
+  width: 100px;
+}
+#manage-clubs .clubs-table th:last-child,
+#manage-clubs .clubs-table td:last-child {
+  width: 200px;
+}
+
+/* Table Rows */
+#manage-clubs .clubs-table tbody tr {
+  background: var(--white);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+#manage-clubs .clubs-table tbody tr:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-light);
+}
+
+/* ===== TABLE CELL STYLES ===== */
+/* Club Cell */
+#manage-clubs .club-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+}
+
+#manage-clubs .club-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#manage-clubs .club-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-dark);
+  margin-bottom: 2px;
+}
+
+#manage-clubs .club-description {
+  font-size: 12px;
+  color: var(--info-dark);
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Owner Cell */
+#manage-clubs .owner-cell {
+  text-align: left;
+}
+
+#manage-clubs .owner-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+#manage-clubs .owner-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-dark);
+  margin-bottom: 2px;
+}
+
+#manage-clubs .owner-email {
+  font-size: 12px;
+  color: var(--info-dark);
+}
+
+/* Status Labels */
+#manage-clubs .status {
+  display: inline-block;
+  text-align: center;
+  min-width: 80px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#manage-clubs .status-active {
+  color: #16a34a;
+  background: rgba(22, 163, 74, 0.1);
+  border: 1px solid rgba(22, 163, 74, 0.2);
+}
+
+#manage-clubs .status-suspended {
+  color: #6b7280;
+  background: rgba(156, 163, 175, 0.1);
+  border: 1px solid rgba(156, 163, 175, 0.2);
+}
+
+/* Members Count */
+#manage-clubs .members-cell {
+  text-align: center;
+}
+
+#manage-clubs .members-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(156, 163, 175, 0.1);
+  color: #6b7280;
+  min-width: 32px;
+  border: 1px solid rgba(156, 163, 175, 0.2);
+}
+
+#manage-clubs .members-count.warnings-medium {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+#manage-clubs .members-count.warnings-high {
+  background: rgba(139, 69, 19, 0.1);
+  color: #92400e;
+  border-color: rgba(139, 69, 19, 0.2);
+}
+
+/* ===== ACTION BUTTONS ===== */
+#manage-clubs .actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+#manage-clubs .action-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  position: relative;
+}
+
+#manage-clubs .action-btn:hover {
+  transform: scale(1.15) translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#manage-clubs .action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Button Colors */
+.messages-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.1),
+    rgba(16, 185, 129, 0.2)
+  );
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.members-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(168, 85, 247, 0.1),
+    rgba(168, 85, 247, 0.2)
+  );
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.view-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.1),
+    rgba(59, 130, 246, 0.2)
+  );
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.delete-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.1),
+    rgba(239, 68, 68, 0.2)
+  );
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Small action buttons for modals */
+.action-btn.small {
+  width: 28px;
+  height: 28px;
+  font-size: 12px;
+}
+
+.kick-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(249, 115, 22, 0.1),
+    rgba(249, 115, 22, 0.2)
+  );
+  color: #ea580c;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.ban-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.1),
+    rgba(239, 68, 68, 0.2)
+  );
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.mute-btn {
+  background: linear-gradient(
+    135deg,
+    rgba(156, 163, 175, 0.1),
+    rgba(156, 163, 175, 0.2)
+  );
+  color: #6b7280;
+  border: 1px solid rgba(156, 163, 175, 0.3);
+}
+
+/* ===== EMPTY STATES ===== */
+#manage-clubs .no-clubs-found,
+.no-messages-found,
+.no-members-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  text-align: center;
+  color: var(--info-dark);
+  border-radius: 16px;
+  background: linear-gradient(135deg, #f9fafb, #f3f4f6);
+}
+
+#manage-clubs .no-clubs-found .empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: pulseScale 2s infinite;
+}
+
+#manage-clubs .no-clubs-found i,
+.no-messages-found i,
+.no-members-found i {
+  font-size: 64px;
+  color: var(--primary);
+  margin-bottom: 16px;
+  opacity: 0.7;
+  animation: bounce 3s infinite;
+}
+
+#manage-clubs .no-clubs-found p,
+.no-messages-found p,
+.no-members-found p {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0 0 8px 0;
+  color: var(--info-dark);
+}
+
+.search-hint {
+  font-size: 14px !important;
+  color: var(--info-light) !important;
+  font-weight: 400 !important;
+}
+
+/* ===== MODAL STYLES ===== */
+/* Club Details */
+#manage-clubs .club-details,
+.member-details-preview {
+  background: var(--light-bg);
+  padding: 16px;
+  border-radius: 12px;
+  margin: 16px 0;
+  border-left: 4px solid var(--primary);
+  border: 1px solid var(--light-gray);
+}
+
+#manage-clubs .club-details p,
+.member-details-preview p {
+  margin: 6px 0;
+  font-size: 14px;
+  line-height: 1.5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#manage-clubs .club-details strong,
+.member-details-preview strong {
+  color: var(--primary-dark);
+  min-width: 80px;
+  text-align: left;
+}
+
+#manage-clubs .club-details span,
+.member-details-preview span {
+  color: var(--text-dark);
+  text-align: right;
+  flex: 1;
+  margin-left: 12px;
+}
+
+.warning-text {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.05);
+  padding: 12px 16px;
+  border-radius: 8px;
+  border-left: 4px solid #dc2626;
+  font-size: 14px;
+  margin: 16px 0;
+  line-height: 1.5;
+}
+
+/* ===== MESSAGES MODAL ===== */
+.messages-modal-content,
+.members-modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 16px;
+}
+
+.messages-container-enhanced,
+.members-scrollable {
+  flex: 1;
+  min-height: 300px;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+  background: var(--light-bg);
+  border-radius: 12px;
+  border: 1px solid var(--light-gray);
+  overflow: hidden;
+}
+
+.messages-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+/* Message Bubbles */
+.message-bubble {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--white);
+  margin-bottom: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  border: 1px solid var(--light-gray);
+  animation: slideIn 0.3s ease-out;
+}
+
+.message-bubble:hover {
+  transform: translateX(4px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.message-bubble:last-child {
+  margin-bottom: 0;
+}
+
+.message-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 16px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.message-content-enhanced {
+  flex: 1;
+  min-width: 0;
+}
+
+.message-header-enhanced {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  gap: 12px;
+}
+
+.message-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.message-username {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+
+.message-time-enhanced {
+  font-size: 11px;
+  color: var(--info-dark);
+  font-weight: 500;
+}
+
+.message-text-enhanced {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-dark);
+  word-wrap: break-word;
+  margin-bottom: 6px;
+}
+
+/* Deleted Message Styling */
+.deleted-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #6b7280;
+  font-style: italic;
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-radius: 8px;
+  border-left: 3px solid #dc2626;
+}
+
+.deleted-message i {
+  color: #dc2626;
+}
+
+.message-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--light-bg);
+  border-radius: 12px;
+  font-size: 11px;
+  color: var(--info-dark);
+  margin-top: 6px;
+  border: 1px solid var(--light-gray);
+}
+
+/* ===== MEMBERS MODAL ===== */
+
+/* ===== MEMBERS MODAL ===== */
+.members-modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 16px;
+}
+
+.members-container-enhanced {
+  flex: 1;
+  min-height: 300px;
+  max-height: 500px;
+  display: flex;
+  flex-direction: column;
+  background: var(--light-bg);
+  border-radius: 12px;
+  border: 1px solid var(--light-gray);
+  overflow: hidden;
+}
+
+.members-scrollable {
+  flex: 1;
+  overflow: auto;
+  min-width: 0; /* Important for flex overflow */
+}
+
+.members-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--white);
+  min-width: 800px; /* Force horizontal scroll when content exceeds */
+}
+
+.members-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--primary-dark);
+  background: var(--light-bg);
+  border-bottom: 2px solid var(--light-gray);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.members-table td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--light-gray);
+  vertical-align: middle;
+}
+
+.members-table tr:hover {
+  background: var(--light-bg);
+}
+
+.members-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--white);
+}
+
+.members-table th {
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--primary-dark);
+  background: var(--light-bg);
+  border-bottom: 2px solid var(--light-gray);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.members-table td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--light-gray);
+  vertical-align: middle;
+}
+
+.members-table tr:hover {
+  background: var(--light-bg);
+}
+
+/* Member User Cell */
+.member-user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.member-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.member-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.member-name {
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 14px;
+}
+
+.club-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: linear-gradient(
+    135deg,
+    rgba(234, 179, 8, 0.1),
+    rgba(234, 179, 8, 0.2)
+  );
+  color: #ca8a04;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  border: 1px solid rgba(234, 179, 8, 0.3);
+}
+
+/* Role and Status Badges */
+.role-badge,
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid transparent;
+}
+
+.role-admin {
+  background: linear-gradient(
+    135deg,
+    rgba(234, 179, 8, 0.1),
+    rgba(234, 179, 8, 0.2)
+  );
+  color: #ca8a04;
+  border-color: rgba(234, 179, 8, 0.3);
+}
+
+.role-moderator {
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.1),
+    rgba(59, 130, 246, 0.2)
+  );
+  color: #3b82f6;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.role-member {
+  background: linear-gradient(
+    135deg,
+    rgba(156, 163, 175, 0.1),
+    rgba(156, 163, 175, 0.2)
+  );
+  color: #6b7280;
+  border-color: rgba(156, 163, 175, 0.3);
+}
+
+.status-active {
+  background: linear-gradient(
+    135deg,
+    rgba(34, 197, 94, 0.1),
+    rgba(34, 197, 94, 0.2)
+  );
+  color: #16a34a;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.status-muted {
+  background: linear-gradient(
+    135deg,
+    rgba(249, 115, 22, 0.1),
+    rgba(249, 115, 22, 0.2)
+  );
+  color: #ea580c;
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
+.status-banned {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.1),
+    rgba(239, 68, 68, 0.2)
+  );
+  color: #dc2626;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.status-kicked {
+  background: linear-gradient(
+    135deg,
+    rgba(156, 163, 175, 0.1),
+    rgba(156, 163, 175, 0.2)
+  );
+  color: #6b7280;
+  border-color: rgba(156, 163, 175, 0.3);
+}
+
+/* Member Actions */
+.member-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ===== BUTTON STYLES ===== */
+.danger-btn {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+.danger-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.4);
+}
+
+.warning-btn {
+  background: linear-gradient(135deg, #ea580c, #c2410c);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.3);
+}
+
+.warning-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(234, 88, 12, 0.4);
+}
+
+.btn-secondary {
+  background: var(--light-bg);
+  color: var(--text-dark);
+  border: 1px solid var(--light-gray);
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--light-gray);
+  transform: translateY(-1px);
+}
+
+.danger-btn:disabled,
+.warning-btn:disabled,
+.btn-secondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.danger-btn.loading,
+.warning-btn.loading {
+  position: relative;
+  color: transparent;
+}
+
+.danger-btn.loading::after,
+.warning-btn.loading::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  top: 50%;
+  left: 50%;
+  margin-left: -9px;
+  margin-top: -9px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  border-top-color: white;
+}
+
+/* ===== SCROLLBAR STYLING ===== */
+.messages-scrollable::-webkit-scrollbar,
+.members-scrollable::-webkit-scrollbar,
+#manage-clubs .table-responsive::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messages-scrollable::-webkit-scrollbar-track,
+.members-scrollable::-webkit-scrollbar-track,
+#manage-clubs .table-responsive::-webkit-scrollbar-track {
+  background: var(--light-bg);
+  border-radius: 4px;
+}
+
+.messages-scrollable::-webkit-scrollbar-thumb,
+.members-scrollable::-webkit-scrollbar-thumb,
+#manage-clubs .table-responsive::-webkit-scrollbar-thumb {
+  background: var(--primary-light);
+  border-radius: 4px;
+  border: 2px solid var(--light-bg);
+}
+
+.messages-scrollable::-webkit-scrollbar-thumb:hover,
+.members-scrollable::-webkit-scrollbar-thumb:hover,
+#manage-clubs .table-responsive::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulseScale {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1024px) {
+  #manage-clubs .clubs-container {
+    padding: 20px;
+  }
+
+  #manage-clubs .clubs-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .members-table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  #manage-clubs .clubs-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  #manage-clubs .clubs-title {
+    font-size: 24px;
+    text-align: center;
+    border-left: none;
+    border-bottom: 3px solid var(--primary);
+    padding-left: 0;
+    padding-bottom: 8px;
+  }
+
+  #manage-clubs .actions {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  #manage-clubs .action-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .message-bubble {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .message-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+
+  .member-actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .member-user-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .danger-btn,
+  .warning-btn,
+  .btn-secondary {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  #manage-clubs .clubs-container {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  #manage-clubs .clubs-table th,
+  #manage-clubs .clubs-table td {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  .messages-scrollable,
+  .members-scrollable {
+    padding: 12px;
+  }
+
+  .message-bubble {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .message-header-enhanced {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+}

@@ -4,6 +4,7 @@ const Transaction = require("../../models/transaction-model/transaction.model");
 const User = require("../../models/user-model/user.model");
 const {
   uploadToCloudinary,
+  deleteFromCloudinary,
 } = require("../../utilities/cloudinary/cloudinary.utility");
 
 /**
@@ -351,7 +352,7 @@ exports.getTransactionById = async (req, res) => {
 
 /**
  * @description Get all transactions (Admin view)
- * @route GET /api/transaction/admin/all-transactions
+ * @route GET /api/transaction/super-admin/all-transactions
  * @access Private (SuperAdmin only)
  */
 exports.getAllTransactions = async (req, res) => {
@@ -388,6 +389,57 @@ exports.getAllTransactions = async (req, res) => {
     });
   } catch (err) {
     console.error("getAllTransactions:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+/**
+ * @description Delete a transaction (SuperAdmin only)
+ * Deletes associated receipt from Cloudinary as well.
+ * @route DELETE /api/transaction/super-admin/delete-transaction/:transactionId
+ * @access Private (SuperAdmin only)
+ */
+exports.deleteTransaction = async (req, res) => {
+  try {
+    if (req.user.role !== "SUPERADMIN") {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied. SuperAdmin only.",
+      });
+    }
+
+    const { transactionId } = req.params;
+
+    const transaction = await Transaction.findById(transactionId);
+
+    if (!transaction) {
+      return res.status(404).json({
+        success: false,
+        message: "Transaction not found",
+      });
+    }
+
+    // Delete receipt from Cloudinary if exists
+    if (transaction.receiptPublicId) {
+      try {
+        await deleteFromCloudinary(transaction.receiptPublicId);
+      } catch (cloudErr) {
+        console.warn(
+          `Failed to delete receipt from Cloudinary for transaction ${transactionId}:`,
+          cloudErr
+        );
+      }
+    }
+
+    await transaction.deleteOne();
+
+    res.status(200).json({
+      success: true,
+      message: "Transaction deleted successfully",
+      transactionId: transaction._id,
+    });
+  } catch (err) {
+    console.error("deleteTransaction:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };

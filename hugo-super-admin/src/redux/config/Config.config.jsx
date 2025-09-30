@@ -9,8 +9,8 @@
 
 const CONFIG = {
   /** Base URL for backend API requests */
-  // BACKEND_API_URL: "http://localhost:8000/api",
-  BACKEND_API_URL: "https://hugo-backend-2jm8.onrender.com/api",
+  BACKEND_API_URL: "http://localhost:8000/api",
+  // BACKEND_API_URL: "https://hugo-backend-2jm8.onrender.com/api",
 };
 
 export default CONFIG;

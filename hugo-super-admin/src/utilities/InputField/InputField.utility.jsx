@@ -3,7 +3,7 @@
  *
  * A flexible and reusable input field component that supports:
  * - Standard text/password/email inputs with floating labels
- * - Dropdown (select) inputs
+ * - Dropdown (select) inputs with floating labels
  * - Multiline textarea inputs
  *
  * Includes customizable props for styling, validation, and behavior.
@@ -29,34 +29,8 @@
  * @param {boolean} [props.required=false] - Whether input is required.
  * @param {boolean} [props.multiline=false] - If true, renders textarea.
  * @param {number} [props.rows=3] - Row count for textarea.
- *
- * @example
- * // Standard input with floating label
- * <InputField
- *   label="Email"
- *   type="email"
- *   value={email}
- *   onChange={(e) => setEmail(e.target.value)}
- *   required
- * />
- *
- * @example
- * // Dropdown input
- * <InputField
- *   label="Select Category"
- *   dropdownOptions={[
- *     { value: "coffee", label: "Coffee" },
- *     { value: "tea", label: "Tea" }
- *   ]}
- *   selectedValue={category}
- *   onValueChange={(e) => setCategory(e.target.value)}
- * />
  */
 
-/**
- * InputField Component
- * Fixed to handle browser autofill styling issues
- */
 import "../../styles/global.styles.css";
 import "./InputField.utility.css";
 import { useEffect, useRef } from "react";
@@ -85,15 +59,13 @@ const InputField = ({
 }) => {
   const inputRef = useRef(null);
 
-  // Effect to handle browser autofill
+  // Handle browser autofill background override
   useEffect(() => {
     const handleAnimationStart = (e) => {
-      // This is a hack to detect autofill in most browsers
       if (
         e.animationName === "autoFillStart" ||
         e.animationName === "onAutoFillStart"
       ) {
-        // Force the background to remain transparent
         if (inputRef.current) {
           inputRef.current.style.backgroundColor = "transparent";
           inputRef.current.style.color = "var(--white)";
@@ -119,26 +91,30 @@ const InputField = ({
     <section id="input-field">
       <div
         className="custom-input-wrapper"
-        style={{ ...style, width: width || "100%" }}
+        style={{ ...style, width: fullWidth ? "100%" : width || "100%" }}
       >
+        {/* Dropdown */}
         {dropdownOptions ? (
-          <div className="input-container no-float">
+          <div
+            className={`input-container ${selectedValue ? "has-value" : ""}`}
+            style={{ width: "100%" }}
+          >
             {icon && <span className="input-icon">{icon}</span>}
             <select
-              className="custom-input"
+              className="custom-input dropdown-input"
               value={selectedValue}
               onChange={onValueChange}
               required={required}
               style={{
                 backgroundColor: bgColor || "transparent",
                 color: textColor || "var(--white)",
-                width: fullWidth ? "100%" : "auto",
+                width: "100%", // ✅ ensure dropdown uses wrapper width
                 paddingLeft: icon ? "40px" : undefined,
                 ...inputStyle,
               }}
             >
-              <option value="" disabled>
-                {label || placeholder}
+              <option value="" disabled hidden>
+                {placeholder || label || "Select an option"}
               </option>
               {dropdownOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -146,9 +122,16 @@ const InputField = ({
                 </option>
               ))}
             </select>
+            <label htmlFor={label} className="floating-label">
+              {label}
+            </label>
+            <span className="dropdown-arrow">
+              <i className="fas fa-chevron-down"></i>
+            </span>
           </div>
         ) : multiline ? (
-          <div className="input-container no-float">
+          /* Textarea */
+          <div className="input-container no-float" style={{ width: "100%" }}>
             {icon && <span className="input-icon">{icon}</span>}
             <textarea
               ref={inputRef}
@@ -162,13 +145,18 @@ const InputField = ({
               style={{
                 backgroundColor: bgColor || "transparent",
                 color: textColor || "var(--white)",
+                width: "100%",
                 paddingLeft: icon ? "40px" : undefined,
                 ...inputStyle,
               }}
             />
           </div>
         ) : (
-          <div className={`input-container ${value ? "has-value" : ""}`}>
+          /* Standard input */
+          <div
+            className={`input-container ${value ? "has-value" : ""}`}
+            style={{ width: "100%" }}
+          >
             {icon && <span className="input-icon">{icon}</span>}
             <input
               ref={inputRef}
@@ -183,6 +171,7 @@ const InputField = ({
               style={{
                 backgroundColor: bgColor || "transparent",
                 color: textColor || "var(--white)",
+                width: "100%",
                 paddingLeft: icon ? "40px" : undefined,
                 ...inputStyle,
               }}

@@ -11,9 +11,9 @@
  *
  * State Shape:
  * {
- *   superAdmin: { id, email, userName, ... } | null,
- *   loading: boolean,
- *   error: { message: string, success: boolean, status: number } | null
+ * superAdmin: { id, email, userName, ... } | null,
+ * loading: boolean,
+ * error: { message: string, success: boolean, status: number } | null
  * }
  */
 
@@ -50,8 +50,6 @@ export const getSuperAdmin = createAsyncThunk(
         }
       );
 
-      console.log("Get Super Admin response:", response.data);
-
       const { superAdmin, message, success } = response.data;
 
       if (!success || !superAdmin) {
@@ -60,10 +58,10 @@ export const getSuperAdmin = createAsyncThunk(
 
       return { superAdmin, message };
     } catch (error) {
-      console.error(
-        "Get Super Admin Error:",
-        error.response?.data || error.message
-      );
+      // console.error( // Removed console.error
+      //   "Get Super Admin Error:",
+      //   error.response?.data || error.message
+      // );
 
       const backendError = error.response?.data;
 

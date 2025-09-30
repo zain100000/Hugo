@@ -65,7 +65,8 @@ exports.upload = multer({
   { name: "profilePicture", maxCount: 1 },
   { name: "mediaImage", maxCount: 5 },
   { name: "mediaVideo", maxCount: 3 },
-  { name: "receipt", maxCount: 1 }, // CHANGED: from "paymentReceipts" to "receipt"
+  { name: "receipt", maxCount: 1 },
+  { name: "clubImage", maxCount: 1 },
 ]);
 
 /**
@@ -120,6 +121,12 @@ exports.uploadToCloudinary = async (
       break;
     case "paymentReceipts": // CHANGED: Corrected spelling
       folder += "/paymentReceipts";
+      transformation = {
+        quality: "auto",
+      };
+      break;
+    case "clubImage":
+      folder += "/clubImages";
       transformation = {
         quality: "auto",
       };

@@ -73,9 +73,19 @@ router.patch(
  * @desc Get all transactions (Admin view with filters + pagination)
  */
 router.get(
-  "/admin/all-transactions",
+  "/super-admin/get-all-transactions",
   authMiddleware,
   transactionController.getAllTransactions
 );
+
+/**
+ * @desc Delete transactions
+ */
+router.delete(
+  "/super-admin/delete-transaction/:transactionId",
+  authMiddleware,
+  transactionController.deleteTransaction
+);
+
 
 module.exports = router;

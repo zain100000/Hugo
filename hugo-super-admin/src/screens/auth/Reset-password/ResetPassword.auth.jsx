@@ -8,7 +8,7 @@
  * @component
  * @example
  * return (
- *   <ResetPassword />
+ *   <ResetPassword />
  * )
  */
 import React, { useState, useEffect } from "react";
@@ -36,6 +36,7 @@ const ResetPassword = () => {
   const [loading, setLoading] = useState(false);
   const [passwordError, setPasswordError] = useState("");
 
+  // This useEffect seems intended for conditional button disabling, but is currently unused.
   useEffect(() => {
     const hasErrors = passwordError || !password;
   }, [passwordError, password]);
@@ -69,7 +70,7 @@ const ResetPassword = () => {
     if (errorKeys.length > 0) {
       const firstErrorKey = errorKeys[0];
       toast.error(errors[firstErrorKey]);
-      setLoading(false);
+      // Removed redundant setLoading(false) here, as loading is set to true immediately after
       return;
     }
 
@@ -81,7 +82,7 @@ const ResetPassword = () => {
         token,
       };
 
-      console.log("Sending reset request with:", resetPasswordData);
+      // console.log("Sending reset request with:", resetPasswordData); // Removed console.log
 
       const resultAction = await dispatch(resetPassword(resetPasswordData));
       if (resetPassword.fulfilled.match(resultAction)) {
@@ -90,7 +91,7 @@ const ResetPassword = () => {
         toast.success(successMessage);
 
         setTimeout(() => {
-          navigate("/");
+          navigate("/"); // Redirect to signin
         }, 2000);
 
         setPassword("");
@@ -102,7 +103,7 @@ const ResetPassword = () => {
         toast.error(errorMessage);
       }
     } catch (err) {
-      console.error("An error occurred during password reset:", err);
+      // console.error("An error occurred during password reset:", err); // Removed console.error
       toast.error("An error occurred. Please try again.");
     } finally {
       setLoading(false);

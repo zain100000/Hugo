@@ -1,24 +1,21 @@
-/**
- * Sidebar Component
- *
- * Provides a fixed navigation menu for the admin dashboard.
- * Uses `NavLink` for route navigation with active highlighting.
- * The current route is tracked using `useLocation` to apply "active" styling
- * to grouped navigation links (e.g., all `/admin/products/*` routes).
- *
- * @component
- * @example
- * return (
- *   <Sidebar />
- * )
- */
-
 import React, { useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import "../../styles/global.styles.css";
 import "./Sidebar.utility.css";
 
 const Sidebar = () => {
+  const location = useLocation();
+
+  // Active states
+  const isUsersActive = location.pathname.startsWith("/super-admin/users");
+  const isCoinPackagesActive = location.pathname.startsWith(
+    "/super-admin/coin-packages"
+  );
+  const isTransactionsActive = location.pathname.startsWith(
+    "/super-admin/transactions"
+  );
+  const isClubsActive = location.pathname.startsWith("/super-admin/clubs");
+
   useEffect(() => {
     const links = document.querySelectorAll(".sidebar-link");
 
@@ -66,6 +63,7 @@ const Sidebar = () => {
     <section id="sidebar">
       <ul className="sidebar-nav">
         <li className="sidebar-container">
+          {/* Dashboard */}
           <NavLink
             to="/super-admin/dashboard"
             className={({ isActive }) =>
@@ -77,7 +75,55 @@ const Sidebar = () => {
               <i className="fas fa-home"></i>
             </div>
             <span className="sidebar-text">Dashboard</span>
-          </NavLink>          
+          </NavLink>
+
+          {/* Users */}
+          <NavLink
+            to="/super-admin/users/manage-users"
+            className={`sidebar-link ${isUsersActive ? "active" : ""}`}
+            data-label="Users"
+          >
+            <div className="sidebar-icon">
+              <i className="fas fa-users"></i>
+            </div>
+            <span className="sidebar-text">Users</span>
+          </NavLink>
+
+          {/* Coin Packages */}
+          <NavLink
+            to="/super-admin/coin-packages/manage-coin-packages"
+            className={`sidebar-link ${isCoinPackagesActive ? "active" : ""}`}
+            data-label="Coin Packages"
+          >
+            <div className="sidebar-icon">
+              <i className="fas fa-box-open"></i>
+            </div>
+            <span className="sidebar-text">Coin Packages</span>
+          </NavLink>
+
+          {/* Transactions */}
+          <NavLink
+            to="/super-admin/transactions/manage-transactions"
+            className={`sidebar-link ${isTransactionsActive ? "active" : ""}`}
+            data-label="Transactions"
+          >
+            <div className="sidebar-icon">
+              <i className="fas fa-receipt"></i>
+            </div>
+            <span className="sidebar-text">Transactions</span>
+          </NavLink>
+
+          {/* Clubs (fixed) */}
+          <NavLink
+            to="/super-admin/clubs/manage-clubs"
+            className={`sidebar-link ${isClubsActive ? "active" : ""}`}
+            data-label="Clubs"
+          >
+            <div className="sidebar-icon">
+              <i className="fas fa-building"></i>
+            </div>
+            <span className="sidebar-text">Clubs</span>
+          </NavLink>
         </li>
       </ul>
     </section>

@@ -1,0 +1,194 @@
+/**
+ * @file Club.details.css
+ * @description Stylesheet for the ClubDetails component.
+ * Provides styling for club profile display, details table, members list,
+ * loader, responsive design, scrollable content, and general layout.
+ */
+
+@import url("../../../styles/global.styles.css");
+
+/* Main Container */
+#club-detail {
+  padding: 28px;
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* Title */
+#club-detail .clubs-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--primary);
+  margin: 0 0 20px 0;
+  padding-left: 10px;
+  border-left: 4px solid var(--primary);
+}
+
+/* Content Container */
+#club-detail .content-container {
+  display: flex;
+  gap: 40px;
+  padding: 20px 0;
+  flex-wrap: wrap;
+}
+
+/* Club Image */
+#club-detail .club-image-container {
+  flex: 0 0 150px;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--light-bg);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+#club-detail .club-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* Details Table */
+#club-detail .details-container {
+  flex: 1;
+}
+
+#club-detail .details-table {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+#club-detail .detail-row {
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+#club-detail .detail-label {
+  flex: 0 0 150px;
+  padding: 15px 20px;
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+  font-weight: 600;
+  font-size: 15px;
+}
+
+#club-detail .detail-value {
+  flex: 1;
+  padding: 15px 20px;
+  background-color: var(--white);
+  color: var(--text-primary);
+  font-size: 15px;
+  border-right: 1px solid var(--light-gray);
+}
+
+#club-detail .detail-row .detail-value:last-child {
+  border-right: none;
+}
+
+#club-detail .description {
+  line-height: 1.6;
+}
+
+/* Members Section */
+#club-detail .members-section {
+  margin-top: 30px;
+  border-top: 1px solid var(--light-gray);
+  padding-top: 20px;
+}
+
+#club-detail .members-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: var(--primary);
+}
+
+#club-detail .members-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+#club-detail .members-table th,
+#club-detail .members-table td {
+  padding: 12px 15px;
+  border: 1px solid var(--light-gray);
+  text-align: left;
+  font-size: 14px;
+}
+
+#club-detail .members-table th {
+  background-color: var(--primary-light);
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+
+#club-detail .no-members {
+  font-size: 14px;
+  color: var(--text-secondary);
+  padding: 10px 0;
+  font-style: italic;
+}
+
+/* Loader */
+#club-detail .loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+}
+
+/* Not Found */
+#club-detail .not-found {
+  text-align: center;
+  padding: 40px;
+  font-size: 18px;
+  color: var(--text-secondary);
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  #club-detail .content-container {
+    flex-direction: column;
+  }
+
+  #club-detail .club-image-container {
+    margin: 0 auto 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  #club-detail .detail-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  #club-detail .detail-label,
+  #club-detail .detail-value {
+    width: 100%;
+    flex: none;
+    border-right: none;
+    border-bottom: 1px solid var(--light-gray);
+  }
+
+  #club-detail .detail-value:last-child {
+    border-bottom: none;
+  }
+
+  #club-detail .members-table th,
+  #club-detail .members-table td {
+    font-size: 12px;
+    padding: 8px;
+  }
+}

@@ -8,7 +8,7 @@
  * @component
  * @example
  * return (
- *   <ForgotPassword />
+ *   <ForgotPassword />
  * )
  */
 
@@ -35,6 +35,7 @@ const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
 
+  // This useEffect seems intended for conditional button disabling, but is currently unused.
   useEffect(() => {
     const hasErrors = emailError || !email;
   }, [emailError, email]);
@@ -63,7 +64,7 @@ const ForgotPassword = () => {
     if (errorKeys.length > 0) {
       const firstErrorKey = errorKeys[0];
       toast.error(errors[firstErrorKey]);
-      setLoading(false);
+      // The loading state is managed by the try/catch/finally block below, no need to set here.
       return;
     }
 
@@ -80,7 +81,7 @@ const ForgotPassword = () => {
         toast.success(successMessage);
 
         setTimeout(() => {
-          navigate("/");
+          navigate("/"); // Redirect to signin
         }, 2000);
 
         setEmail("");
@@ -92,7 +93,7 @@ const ForgotPassword = () => {
         toast.error(errorMessage);
       }
     } catch (err) {
-      console.error("An error occurred during password reset request:", err);
+      // console.error("An error occurred during password reset request:", err); // Removed console.error
       toast.error("An error occurred. Please try again.");
     } finally {
       setLoading(false);

@@ -1,29 +1,14 @@
 /**
  * Validation Utilities
  *
- * Provides reusable validation functions for authentication,
- * product management, and general form handling.
- *
+ * Provides reusable validation functions for authentication and coin packages.
  * Features:
- * - Field-level validators (e.g., email, password, full name, etc.)
+ * - Email validation
+ * - Password validation
+ * - Coin package validations (name, coins, price, currency, duration)
  * - Unified validation function to check multiple fields at once
  * - Utility to determine overall form validity
  */
-
-/**
- * Validate full name.
- * @param {string} fullName - The user's full name.
- * @returns {string} Error message or empty string if valid.
- */
-export const validateFullName = (fullName) => {
-  if (!fullName) {
-    return "Full Name is required";
-  }
-  if (fullName.length < 3) {
-    return "Full Name must be at least 3 characters long";
-  }
-  return "";
-};
 
 /**
  * Validate email format.
@@ -57,91 +42,137 @@ export const validatePassword = (password) => {
 };
 
 /**
- * Validate contact number (must be 11 digits).
- * @param {string} contactNumber - The user's contact number.
+ * Validate package name.
+ * @param {string} name - The package name.
  * @returns {string} Error message or empty string if valid.
  */
-export const validateContactNumber = (contactNumber) => {
-  const contactNumberPattern = /^[0-9]{11}$/;
-  if (!contactNumber) {
-    return "Contact number is required";
+export const validatePackageName = (name) => {
+  if (!name) {
+    return "Package name is required";
   }
-  if (!contactNumberPattern.test(contactNumber)) {
-    return "Contact number must be 11 digits";
+  if (name.length < 2) {
+    return "Package name must be at least 2 characters long";
+  }
+  if (name.length > 50) {
+    return "Package name must be less than 50 characters";
   }
   return "";
 };
 
 /**
- * Validate product title.
- * @param {string} title - The product title.
+ * Validate coins amount.
+ * @param {string|number} coins - The number of coins.
  * @returns {string} Error message or empty string if valid.
  */
-export const validateTitle = (title) => {
-  if (!title) {
-    return "Title is required";
+export const validateCoins = (coins) => {
+  if (!coins && coins !== 0) {
+    return "Coins amount is required";
   }
-  if (title.length < 5) {
-    return "Title must be at least 5 characters long";
+  const coinsNum = Number(coins);
+  if (isNaN(coinsNum)) {
+    return "Coins must be a valid number";
+  }
+  if (coinsNum <= 0) {
+    return "Coins must be greater than 0";
+  }
+  if (coinsNum > 1000000) {
+    return "Coins amount is too high";
   }
   return "";
 };
 
 /**
- * Validate product description.
- * @param {string} description - The product description.
- * @returns {string} Error message or empty string if valid.
- */
-export const validateDescription = (description) => {
-  if (!description) {
-    return "Description is required";
-  }
-  if (description.length < 15) {
-    return "Description must be at least 15 characters long";
-  }
-  return "";
-};
-
-/**
- * Validate product price.
- * @param {string|number} price - The product price.
+ * Validate package price.
+ * @param {string|number} price - The package price.
  * @returns {string} Error message or empty string if valid.
  */
 export const validatePrice = (price) => {
-  if (!price) {
+  if (!price && price !== 0) {
     return "Price is required";
+  }
+  const priceNum = Number(price);
+  if (isNaN(priceNum)) {
+    return "Price must be a valid number";
+  }
+  if (priceNum <= 0) {
+    return "Price must be greater than 0";
+  }
+  if (priceNum > 1000000) {
+    return "Price is too high";
   }
   return "";
 };
 
 /**
- * Validate product category.
- * @param {string} category - The product category.
+ * Validate currency.
+ * @param {string} currency - The currency type.
  * @returns {string} Error message or empty string if valid.
  */
-export const validateCategory = (category) => {
-  if (!category) {
-    return "Category is required";
+export const validateCurrency = (currency) => {
+  const validCurrencies = ["PKR", "USD", "EUR", "GBP"];
+  if (!currency) {
+    return "Currency is required";
+  }
+  if (!validCurrencies.includes(currency.toUpperCase())) {
+    return "Please select a valid currency";
+  }
+  return "";
+};
+
+/**
+ * Validate duration value.
+ * @param {string|number} durationValue - The duration value.
+ * @returns {string} Error message or empty string if valid.
+ */
+export const validateDurationValue = (durationValue) => {
+  if (!durationValue && durationValue !== 0) {
+    return "Duration value is required";
+  }
+  const durationNum = Number(durationValue);
+  if (isNaN(durationNum)) {
+    return "Duration value must be a valid number";
+  }
+  if (durationNum <= 0) {
+    return "Duration value must be greater than 0";
+  }
+  if (durationNum > 365) {
+    return "Duration value is too high";
+  }
+  return "";
+};
+
+/**
+ * Validate duration unit.
+ * @param {string} durationUnit - The duration unit.
+ * @returns {string} Error message or empty string if valid.
+ */
+export const validateDurationUnit = (durationUnit) => {
+  const validUnits = ["day", "week", "month", "year"];
+  if (!durationUnit) {
+    return "Duration unit is required";
+  }
+  if (!validUnits.includes(durationUnit)) {
+    return "Please select a valid duration unit";
   }
   return "";
 };
 
 /**
  * Validate multiple fields at once using the appropriate validation function.
- *
  * @param {Object} fields - Object containing field names and values.
  * @returns {Object} Errors keyed by field name.
  */
 export const validateFields = (fields) => {
   const validationFunctions = {
-    fullName: validateFullName,
     email: validateEmail,
     password: validatePassword,
-    contactNumber: validateContactNumber,
-    title: validateTitle,
-    description: validateDescription,
+    name: validatePackageName,
+    packageName: validatePackageName,
+    coins: validateCoins,
     price: validatePrice,
-    category: validateCategory,
+    currency: validateCurrency,
+    durationValue: validateDurationValue,
+    durationUnit: validateDurationUnit,
   };
 
   const errors = {};
@@ -160,7 +191,6 @@ export const validateFields = (fields) => {
 
 /**
  * Determine if all inputs in a form are valid.
- *
  * @param {Object} fields - Object containing field names and values.
  * @returns {boolean} True if all fields are valid, false otherwise.
  */
@@ -168,5 +198,5 @@ export const isValidInput = (fields) => {
   console.log("Validating fields: ", fields);
   const errors = validateFields(fields);
   console.log("Validation errors: ", errors);
-  return Object.values(errors).every((error) => error === "");
+  return Object.keys(errors).length === 0;
 };
