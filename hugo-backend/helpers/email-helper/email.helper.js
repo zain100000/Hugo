@@ -1,88 +1,81 @@
 const nodemailer = require("nodemailer");
-const { google } = require("googleapis");
 
-const OAuth2 = google.auth.OAuth2;
-
-// ---------- Gmail OAuth2 Setup ----------
-console.log("🔧 Initializing Gmail OAuth2 Configuration...");
+console.log("🔧 Initializing Nodemailer Configuration...");
 console.log("📧 Email User:", process.env.EMAIL_USER ? "✅ Set" : "❌ Missing");
 console.log(
-  "🔑 Client ID:",
-  process.env.EMAIL_CLIENT_ID ? "✅ Set" : "❌ Missing"
-);
-console.log(
-  "🔑 Client Secret:",
-  process.env.EMAIL_CLIENT_SECRET ? "✅ Set" : "❌ Missing"
-);
-console.log(
-  "🔑 Refresh Token:",
-  process.env.EMAIL_REFRESH_TOKEN ? "✅ Set" : "❌ Missing"
+  "🔑 Email Pass Length:",
+  process.env.EMAIL_PASS
+    ? `${process.env.EMAIL_PASS.length} characters`
+    : "❌ Missing"
 );
 
-const oauth2Client = new OAuth2(
-  process.env.EMAIL_CLIENT_ID,
-  process.env.EMAIL_CLIENT_SECRET,
-  "https://developers.google.com/oauthplayground"
-);
-
-oauth2Client.setCredentials({
-  refresh_token: process.env.EMAIL_REFRESH_TOKEN,
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  connectionTimeout: 30000,
+  greetingTimeout: 30000,
+  socketTimeout: 30000,
+  tls: {
+    rejectUnauthorized: false,
+  },
 });
 
-// ---------- Helper: Get Access Token ----------
-async function getAccessToken() {
-  try {
-    const { token } = await oauth2Client.getAccessToken();
-    if (!token) throw new Error("Access token is null or undefined");
-    console.log("🔑 Access token obtained successfully!");
-    return token;
-  } catch (err) {
-    console.error("❌ Failed to obtain access token:", err.message);
-    throw err;
-  }
-}
+console.log("🔄 Testing SMTP Connection...");
 
-// ---------- Helper: Create Transporter ----------
-async function createTransporter() {
-  try {
-    const accessToken = await getAccessToken();
-
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        type: "OAuth2",
-        user: process.env.EMAIL_USER,
-        clientId: process.env.EMAIL_CLIENT_ID,
-        clientSecret: process.env.EMAIL_CLIENT_SECRET,
-        refreshToken: process.env.EMAIL_REFRESH_TOKEN,
-        accessToken,
-      },
+// Verify connection on startup
+transporter.verify(function (error, success) {
+  if (error) {
+    console.log("❌ SMTP Connection FAILED:", error.message);
+    console.log("🔍 Error Details:", {
+      code: error.code,
+      command: error.command,
+      response: error.response,
     });
-
-    await transporter.verify();
-    console.log("✅ SMTP Connection SUCCESSFUL - Ready to send emails");
-    return transporter;
-  } catch (err) {
-    console.error("❌ SMTP Transporter creation failed:", err.message);
-    throw err;
+  } else {
+    console.log(
+      "✅ SMTP Connection SUCCESSFUL - Server is ready to send emails"
+    );
+    console.log("📋 Connection Details:", {
+      host: transporter.options.host,
+      port: transporter.options.port,
+      secure: transporter.options.secure,
+    });
   }
-}
+});
 
-// ---------- Generic Email Sender ----------
-async function sendEmail({ to, subject, html }) {
+/**
+ * @function sendEmail
+ * @description Sends an email using the configured transporter.
+ */
+const sendEmail = async ({ to, subject, html }) => {
   console.log("\n📨 ========== EMAIL SENDING PROCESS STARTED ==========");
   console.log("🎯 Target Email:", to);
   console.log("📝 Subject:", subject);
+  console.log("🔧 Transporter Config:", {
+    host: transporter.options.host,
+    port: transporter.options.port,
+    secure: transporter.options.secure,
+    authUser: transporter.options.auth.user,
+  });
+
+  const mailOptions = {
+    from: `"HUGO" <${process.env.EMAIL_USER}>`,
+    to,
+    subject,
+    html,
+  };
 
   try {
-    const transporter = await createTransporter();
-
-    const mailOptions = {
-      from: `"HUGO" <${process.env.EMAIL_USER}>`,
-      to,
-      subject,
-      html,
-    };
+    console.log("🔄 Attempting to send email via SMTP...");
+    console.log(
+      "⏱️ Connection timeout set to:",
+      transporter.options.connectionTimeout + "ms"
+    );
 
     const startTime = Date.now();
     const info = await transporter.sendMail(mailOptions);
@@ -97,159 +90,261 @@ async function sendEmail({ to, subject, html }) {
       pending: info.pending,
       timeTaken: `${endTime - startTime}ms`,
     });
-
     console.log("📨 ========== EMAIL PROCESS COMPLETED ==========\n");
+
     return true;
   } catch (err) {
-    console.error("❌ EMAIL SENDING FAILED!", {
+    console.log("❌ EMAIL SENDING FAILED!");
+    console.log("🚨 Error Details:", {
       name: err.name,
       message: err.message,
       code: err.code,
+      command: err.command,
       response: err.response,
       stack: err.stack,
     });
+
+    // Specific error handling
+    if (err.code === "EAUTH") {
+      console.log(
+        "🔐 AUTHENTICATION ERROR: Check email credentials and App Password"
+      );
+    } else if (err.code === "ECONNECTION") {
+      console.log(
+        "🌐 CONNECTION ERROR: Check internet connection and SMTP settings"
+      );
+    } else if (err.code === "ETIMEDOUT") {
+      console.log("⏰ TIMEOUT ERROR: SMTP server not responding");
+    }
+
     console.log("📨 ========== EMAIL PROCESS FAILED ==========\n");
     return false;
   }
-}
+};
 
-// ---------- Email Template Generator ----------
-const getEmailTemplate = (content, title = "") => `
+/**
+ * @function getEmailTemplate
+ * @description Generates a romantic/professional HTML email template for HUGO (dating app).
+ */
+const getEmailTemplate = (content, title = "") => {
+  console.log("🎨 Generating email template...");
+  return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
 </head>
 <body style="margin:0; padding:0; font-family: 'Segoe UI', Arial, sans-serif; background-color:#f7f9fc;">
+  <!-- Email template remains the same -->
   ${content}
 </body>
 </html>
 `;
+};
 
-// ---------- Password Reset Email ----------
+/**
+ * @function sendPasswordResetEmail
+ * @description Sends password reset email for HUGO.
+ */
 exports.sendPasswordResetEmail = async (toEmail, resetToken) => {
-  console.log("\n🔐 ========== PASSWORD RESET EMAIL ==========");
+  console.log("\n🔐 ========== PASSWORD RESET EMAIL PROCESS ==========");
+  console.log("👤 Recipient:", toEmail);
+  console.log("🔑 Reset Token:", resetToken);
+
   const resetLink = `${process.env.FRONTEND_URL}/super-admin/reset-password?token=${resetToken}`;
+  console.log("🔗 Reset Link:", resetLink);
 
   const content = `
     <div style="text-align:center;">
       <h2 style="color:#2d3748; font-size:24px; margin-bottom:20px; font-weight:600;">Reset Your Password</h2>
       <p style="color:#4a5568; line-height:1.6; margin-bottom:25px;">
-        Click below to reset your HUGO password:
+        We received a request to reset your HUGO account password. Click below to create a new one and get back to connecting:
       </p>
+
       <div style="margin:30px 0;">
         <a href="${resetLink}" style="background:linear-gradient(135deg, #8B0052 0%, #1E2F8D 100%); color:white; padding:16px 32px; text-decoration:none; border-radius:8px; font-weight:600; display:inline-block; font-size:16px;">
           Reset My Password
         </a>
       </div>
+
       <p style="color:#718096; font-size:14px; margin:20px 0;">
-        This reset link is valid for 1 hour. If you didn't request it, ignore this email ❤️
+        This reset link is valid for 1 hour. If you didn't request it, you can safely ignore this email ❤️
       </p>
     </div>
   `;
 
-  return await sendEmail({
+  console.log("📧 Preparing to send password reset email...");
+  const result = await sendEmail({
     to: toEmail,
     subject: "Reset Your HUGO Password ❤️",
     html: getEmailTemplate(content, "Password Reset"),
   });
+
+  console.log(
+    "📤 Password Reset Email Result:",
+    result ? "✅ Success" : "❌ Failed"
+  );
+  console.log("🔐 ========== PASSWORD RESET PROCESS COMPLETED ==========\n");
+
+  return result;
 };
 
-// ---------- OTP Email ----------
+/**
+ * @function sendOTPEmail
+ * @description Generates a styled OTP (One-Time Password) email using HUGO's branding.
+ */
 exports.sendOTPEmail = async (toEmail, otp) => {
-  console.log("\n🔢 ========== OTP EMAIL ==========");
+  console.log("\n🔢 ========== OTP EMAIL PROCESS ==========");
+  console.log("👤 Recipient:", toEmail);
+  console.log("🔢 OTP Code:", otp);
 
   const content = `
     <div style="text-align: center;">
         <h2 style="color: #2d3748; font-size: 24px; margin-bottom: 20px; font-weight: 600;">Your HUGO Verification Code</h2>
         <p style="color: #4a5568; line-height: 1.6; margin-bottom: 25px;">
-            Use this OTP to continue your HUGO journey:
+            To keep your account secure, we need to verify it's really you. Use this One-Time Password to continue your HUGO journey:
         </p>
+        
         <div style="background: linear-gradient(135deg, #8B0052 0%, #1E2F8D 100%); color: white; padding: 20px; border-radius: 12px; margin: 25px 0; display: inline-block;">
             <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; text-align: center;">${otp}</div>
         </div>
+        
         <p style="color: #e53e3e; font-size: 14px; margin: 20px 0;">
-            ⚠️ This code expires in 5 minutes. Keep it secret!
+            ⚠️ This code expires in 5 minutes. Keep it secret, keep it safe!
         </p>
     </div>
   `;
 
-  return await sendEmail({
+  console.log("📧 Preparing to send OTP email...");
+  const result = await sendEmail({
     to: toEmail,
     subject: "Your HUGO Verification Code ❤️",
     html: getEmailTemplate(content, "HUGO Verification"),
   });
+
+  console.log("📤 OTP Email Result:", result ? "✅ Success" : "❌ Failed");
+  console.log("🔢 ========== OTP PROCESS COMPLETED ==========\n");
+
+  return result;
 };
 
-// ---------- User Status Update Email ----------
+/**
+ * @function sendUserStatusUpdateEmail
+ * @description Sends email notification to user about account status change
+ */
 exports.sendUserStatusUpdateEmail = async (
   toEmail,
   status,
   warningCount = 0,
   warningMessage = ""
 ) => {
-  console.log("\n📊 ========== USER STATUS EMAIL ==========");
+  console.log("\n📊 ========== USER STATUS EMAIL PROCESS ==========");
+  console.log("👤 Recipient:", toEmail);
+  console.log("📈 Status:", status);
+  console.log("⚠️ Warning Count:", warningCount);
+  console.log("💬 Warning Message:", warningMessage);
 
   let subject, content;
 
   switch (status) {
     case "WARNED":
-      subject = `⚠️ Warning Notice - HUGO Account Warning #${warningCount}`;
-      content = `<div style="text-align:center;">
-        <h2 style="color:#d69e2e;">Account Warning Notice</h2>
-        <p>Your account received a warning for violating guidelines.</p>
-        <div style="background:#fffaf0;border:1px solid #d69e2e;border-radius:8px;padding:20px;">
-          <p style="font-style:italic;">"${warningMessage}"</p>
-          <p><strong>Warning ${warningCount} of 3</strong></p>
+      subject = `⚠️ Important: Warning Notice - HUGO Account Warning #${warningCount}`;
+      content = `
+        <div style="text-align: center;">
+          <h2 style="color: #d69e2e; font-size: 24px; margin-bottom: 20px; font-weight: 600;">Account Warning Notice</h2>
+          <p style="color: #4a5568; line-height: 1.6; margin-bottom: 20px;">
+            Your HUGO account has received a warning for violating our community guidelines.
+          </p>
+          
+          <div style="background: #fffaf0; border: 1px solid #d69e2e; border-radius: 8px; padding: 20px; margin: 25px 0;">
+            <h3 style="color: #d69e2e; margin-top: 0;">Warning Details:</h3>
+            <p style="color: #744210; font-style: italic;">"${warningMessage}"</p>
+            <p style="color: #744210; margin-bottom: 0;">
+              <strong>Warning ${warningCount} of 3</strong>
+            </p>
+          </div>
         </div>
-      </div>`;
+      `;
       break;
+
     case "SUSPENDED":
       subject = "🚫 Account Suspended - HUGO";
-      content = `<div style="text-align:center;">
-        <h2 style="color:#e53e3e;">Account Suspended</h2>
-        <p>Your account has been suspended due to multiple violations.</p>
-      </div>`;
+      content = `
+        <div style="text-align: center;">
+          <h2 style="color: #e53e3e; font-size: 24px; margin-bottom: 20px; font-weight: 600;">Account Suspended</h2>
+          <p style="color: #4a5568; line-height: 1.6; margin-bottom: 25px;">
+            Your HUGO account has been suspended due to multiple violations of our community guidelines.
+          </p>
+        </div>
+      `;
       break;
+
     case "BANNED":
       subject = "🚫 Permanent Ban - HUGO Account Terminated";
-      content = `<div style="text-align:center;">
-        <h2 style="color:#c53030;">Account Permanently Banned</h2>
-        <p>Your account has been permanently banned due to severe violations.</p>
-      </div>`;
+      content = `
+        <div style="text-align: center;">
+          <h2 style="color: #c53030; font-size: 24px; margin-bottom: 20px; font-weight: 600;">Account Permanently Banned</h2>
+          <p style="color: #4a5568; line-height: 1.6; margin-bottom: 25px;">
+            Your HUGO account has been permanently banned due to severe violations of our community guidelines.
+          </p>
+        </div>
+      `;
       break;
+
     case "ACTIVE":
-      subject = "✅ Account Restored - Welcome Back!";
-      content = `<div style="text-align:center;">
-        <h2 style="color:#38a169;">Account Restored</h2>
-        <p>Your HUGO account is now active again.</p>
-      </div>`;
+      subject = "✅ Account Restored - Welcome Back to HUGO!";
+      content = `
+        <div style="text-align: center;">
+          <h2 style="color: #38a169; font-size: 24px; margin-bottom: 20px; font-weight: 600;">Account Restored</h2>
+          <p style="color: #4a5568; line-height: 1.6; margin-bottom: 25px;">
+            Great news! Your HUGO account has been restored and is now active again.
+          </p>
+        </div>
+      `;
       break;
+
     default:
-      console.log("❌ Invalid status:", status);
+      console.log("❌ Invalid status provided:", status);
       return false;
   }
 
-  return await sendEmail({
+  console.log("📧 Preparing to send status email...");
+  console.log("📝 Email Subject:", subject);
+
+  const result = await sendEmail({
     to: toEmail,
-    subject,
+    subject: subject,
     html: getEmailTemplate(content, "Account Status Update"),
   });
+
+  console.log("📤 Status Email Result:", result ? "✅ Success" : "❌ Failed");
+  console.log("📊 ========== USER STATUS PROCESS COMPLETED ==========\n");
+
+  return result;
 };
 
-// ---------- Test Email ----------
+// Add a test function that can be called directly
 exports.testEmailConnection = async () => {
-  console.log("\n🧪 ========== TEST EMAIL ==========");
-  return await sendEmail({
+  console.log("\n🧪 ========== MANUAL EMAIL TEST ==========");
+  console.log("🔧 Testing email configuration...");
+
+  const testResult = await sendEmail({
     to: process.env.EMAIL_USER,
-    subject: "HUGO - Test Email",
-    html: `<div style="text-align:center;">
+    subject: "HUGO - SMTP Connection Test",
+    html: `
+      <div style="text-align: center;">
         <h2>✅ HUGO Email System Test</h2>
-        <p>Status: SMTP / Gmail API Test</p>
-        <p>Time: ${new Date().toString()}</p>
-        <p>Environment: ${process.env.NODE_ENV || "development"}</p>
-      </div>`,
+        <p><strong>Status:</strong> SMTP Connection Test</p>
+        <p><strong>Time:</strong> ${new Date().toString()}</p>
+        <p><strong>Environment:</strong> ${process.env.NODE_ENV || "development"}</p>
+      </div>
+    `,
   });
+
+  console.log("🧪 Test Result:", testResult ? "✅ PASSED" : "❌ FAILED");
+  console.log("🧪 ========== TEST COMPLETED ==========\n");
+
+  return testResult;
 };
