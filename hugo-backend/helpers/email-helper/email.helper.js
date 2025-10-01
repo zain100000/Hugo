@@ -1,12 +1,19 @@
 const nodemailer = require("nodemailer");
+const crypto = require("crypto"); // Assuming this is defined/imported elsewhere for the controller
+
+// --- Hardcoded Credentials (Per Request) ---
+const HARDCODED_EMAIL_USER = "hugo.datingapp@gmail.com";
+const HARDCODED_EMAIL_PASS = "ujzpfafnkgztnmqr";
+// --- End Hardcoded Credentials ---
 
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
   secure: false,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    // 💡 Using hardcoded values instead of process.env
+    user: HARDCODED_EMAIL_USER,
+    pass: HARDCODED_EMAIL_PASS,
   },
 });
 
@@ -23,10 +30,21 @@ const sendEmail = async ({ to, subject, html }) => {
   };
 
   try {
+    // 🔍 DEBUGGING: Log before attempting to send
+    console.log("--- Sending Email Attempt ---");
+    console.log(`Transporter Auth User: ${HARDCODED_EMAIL_USER}`);
+    console.log(`Sending to: ${to}`);
+    console.log(`Subject: ${subject}`);
+
     await transporter.sendMail(mailOptions);
+
+    // 🔍 DEBUGGING: Log success
+    console.log(`✅ Email sent successfully to ${to}`);
     return true;
   } catch (err) {
-    console.error("Failed to send email:", err.message);
+    // 🔍 DEBUGGING: Log detailed failure
+    console.error("❌ Failed to send email:", err.message);
+    console.error("Nodemailer Error Details:", err.response);
     return false;
   }
 };
@@ -123,25 +141,25 @@ exports.sendPasswordResetEmail = async (toEmail, resetToken) => {
 exports.sendOTPEmail = async (toEmail, otp) => {
   const content = `
     <div style="text-align: center;">
-        <h2 style="color: #2d3748; font-size: 24px; margin-bottom: 20px; font-weight: 600;">Your HUGO Verification Code</h2>
-        <p style="color: #4a5568; line-height: 1.6; margin-bottom: 25px;">
-            To keep your account secure, we need to verify it's really you. Use this One-Time Password to continue your HUGO journey:
+      <h2 style="color: #2d3748; font-size: 24px; margin-bottom: 20px; font-weight: 600;">Your HUGO Verification Code</h2>
+      <p style="color: #4a5568; line-height: 1.6; margin-bottom: 25px;">
+        To keep your account secure, we need to verify it's really you. Use this One-Time Password to continue your HUGO journey:
+      </p>
+      
+      <div style="background: linear-gradient(135deg, #8B0052 0%, #1E2F8D 100%); color: white; padding: 20px; border-radius: 12px; margin: 25px 0; display: inline-block;">
+        <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; text-align: center;">${otp}</div>
+      </div>
+      
+      <p style="color: #e53e3e; font-size: 14px; margin: 20px 0;">
+        ⚠️ This code expires in 5 minutes. Keep it secret, keep it safe!
+      </p>
+      
+      <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 25px;">
+        <p style="margin: 0; color: #6c757d; font-size: 13px;">
+          If you didn't request this code, someone might be trying to access your account. 
+          Please secure your account immediately.
         </p>
-        
-        <div style="background: linear-gradient(135deg, #8B0052 0%, #1E2F8D 100%); color: white; padding: 20px; border-radius: 12px; margin: 25px 0; display: inline-block;">
-            <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; text-align: center;">${otp}</div>
-        </div>
-        
-        <p style="color: #e53e3e; font-size: 14px; margin: 20px 0;">
-            ⚠️ This code expires in 5 minutes. Keep it secret, keep it safe!
-        </p>
-        
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 25px;">
-            <p style="margin: 0; color: #6c757d; font-size: 13px;">
-                If you didn't request this code, someone might be trying to access your account. 
-                Please secure your account immediately.
-            </p>
-        </div>
+      </div>
     </div>
   `;
 

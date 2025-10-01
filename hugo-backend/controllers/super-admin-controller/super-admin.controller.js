@@ -275,19 +275,28 @@ exports.getSuperAdminById = async (req, res) => {
  * @access Public
  */
 exports.forgotPassword = async (req, res) => {
+  // 🔍 DEBUGGING: Log incoming request
+  console.log(`\n--- Forgot Password Request ---`);
+  console.log("Request Body:", req.body);
+
   try {
     const { email } = req.body;
 
     if (!email) {
+      console.log("🚫 Validation Error: Email is missing.");
       return res.status(400).json({
         success: false,
         message: "Email is required",
       });
     }
 
+    // NOTE: SuperAdmin needs to be defined/imported in the actual file. Assuming its existence.
     const superAdmin = await SuperAdmin.findOne({ email: email.toLowerCase() });
 
     if (!superAdmin) {
+      console.log(
+        `⚠️ Admin Not Found: ${email}. Sending generic success message.`
+      );
       return res.status(200).json({
         success: true,
         message:
@@ -302,21 +311,30 @@ exports.forgotPassword = async (req, res) => {
     superAdmin.passwordResetExpires = resetTokenExpiry;
     await superAdmin.save();
 
+    // 🔍 DEBUGGING: Log token generation
+    console.log(`Token Generated for ${email}: ${resetToken}`);
+    console.log(`Token Expiry: ${new Date(resetTokenExpiry)}`);
+
     const emailSent = await sendPasswordResetEmail(email, resetToken);
 
     if (!emailSent) {
+      // 🔍 DEBUGGING: Log email sending failure
+      console.error(
+        "❌ Controller Error: sendPasswordResetEmail returned false."
+      );
       return res.status(500).json({
         success: false,
         message: "Failed to send password reset email",
       });
     }
 
+    console.log(`✅ Success: Reset link email triggered for ${email}.`);
     res.status(200).json({
       success: true,
       message: "Link sent successfully! Please check your email",
     });
   } catch (error) {
-    console.error("Error in forgot password:", error);
+    console.error("❌ Error in forgot password:", error);
     res.status(500).json({
       success: false,
       message: "Server error",

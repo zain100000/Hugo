@@ -18,7 +18,7 @@ const CONFIG = {
    * @type {string}
    */
   // SOCKET_URL: "http://localhost:8000/",
-  SOCKET_URL: "https://hugo-backend-2jm8.onrender.com",
+  SOCKET_URL: "https://hugo-backend-k89v.onrender.com",
 };
 
 export default CONFIG;
