@@ -417,7 +417,14 @@ const ManageClubs = () => {
 
         <div className="table-responsive">
           {loading ? (
-            <div className="loader-container">
+            <div
+              className="loader-container"
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
               <Loader />
             </div>
           ) : filteredClubs.length > 0 ? (
@@ -585,7 +592,15 @@ const ManageClubs = () => {
             {/* Messages Container */}
             <div className="messages-container-enhanced">
               {messagesLoading ? (
-                <div className="loader-container">
+                <div
+                  className="loader-container"
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginTop: 140,
+                  }}
+                >
                   <Loader />
                 </div>
               ) : messages.length === 0 ? (
@@ -598,7 +613,28 @@ const ManageClubs = () => {
                   {messages.map((message) => (
                     <div key={message._id} className="message-bubble">
                       <div className="message-avatar">
-                        <i className="fas fa-user"></i>
+                        {message.sender?.profilePicture ? (
+                          <img
+                            src={message.sender.profilePicture}
+                            alt={`${
+                              message.sender.userName || "User"
+                            }'s profile`}
+                            className="avatar-image"
+                            onError={(e) => {
+                              // Fallback to icon if image fails to load
+                              e.target.style.display = "none";
+                              e.target.nextSibling.style.display = "block";
+                            }}
+                          />
+                        ) : null}
+                        <i
+                          className="fas fa-user avatar-fallback"
+                          style={{
+                            display: message.sender?.profilePicture
+                              ? "none"
+                              : "block",
+                          }}
+                        ></i>
                       </div>
                       <div className="message-content-enhanced">
                         <div className="message-header-enhanced">
@@ -676,7 +712,15 @@ const ManageClubs = () => {
         >
           <div className="members-modal-content">
             {membersLoading ? (
-              <div className="loader-container">
+              <div
+                className="loader-container"
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                 
+                }}
+              >
                 <Loader />
               </div>
             ) : clubMembers.length === 0 ? (
