@@ -29,47 +29,61 @@ oauth2Client.setCredentials({
   refresh_token: process.env.EMAIL_REFRESH_TOKEN,
 });
 
-// ---------- Nodemailer Transporter ----------
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    type: "OAuth2",
-    user: process.env.EMAIL_USER,
-    clientId: process.env.EMAIL_CLIENT_ID,
-    clientSecret: process.env.EMAIL_CLIENT_SECRET,
-    refreshToken: process.env.EMAIL_REFRESH_TOKEN,
-    accessToken: async () => {
-      const accessToken = await oauth2Client.getAccessToken();
-      return accessToken.token;
-    },
-  },
-});
-
-console.log("🔄 Gmail OAuth2 transporter ready!");
-
-// Verify connection on startup
-transporter.verify((error, success) => {
-  if (error) {
-    console.log("❌ SMTP Connection FAILED:", error.message);
-  } else {
-    console.log("✅ SMTP Connection SUCCESSFUL - Ready to send emails");
+// ---------- Helper: Get Access Token ----------
+async function getAccessToken() {
+  try {
+    const { token } = await oauth2Client.getAccessToken();
+    if (!token) throw new Error("Access token is null or undefined");
+    console.log("🔑 Access token obtained successfully!");
+    return token;
+  } catch (err) {
+    console.error("❌ Failed to obtain access token:", err.message);
+    throw err;
   }
-});
+}
+
+// ---------- Helper: Create Transporter ----------
+async function createTransporter() {
+  try {
+    const accessToken = await getAccessToken();
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        type: "OAuth2",
+        user: process.env.EMAIL_USER,
+        clientId: process.env.EMAIL_CLIENT_ID,
+        clientSecret: process.env.EMAIL_CLIENT_SECRET,
+        refreshToken: process.env.EMAIL_REFRESH_TOKEN,
+        accessToken,
+      },
+    });
+
+    await transporter.verify();
+    console.log("✅ SMTP Connection SUCCESSFUL - Ready to send emails");
+    return transporter;
+  } catch (err) {
+    console.error("❌ SMTP Transporter creation failed:", err.message);
+    throw err;
+  }
+}
 
 // ---------- Generic Email Sender ----------
-const sendEmail = async ({ to, subject, html }) => {
+async function sendEmail({ to, subject, html }) {
   console.log("\n📨 ========== EMAIL SENDING PROCESS STARTED ==========");
   console.log("🎯 Target Email:", to);
   console.log("📝 Subject:", subject);
 
-  const mailOptions = {
-    from: `"HUGO" <${process.env.EMAIL_USER}>`,
-    to,
-    subject,
-    html,
-  };
-
   try {
+    const transporter = await createTransporter();
+
+    const mailOptions = {
+      from: `"HUGO" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      html,
+    };
+
     const startTime = Date.now();
     const info = await transporter.sendMail(mailOptions);
     const endTime = Date.now();
@@ -80,23 +94,33 @@ const sendEmail = async ({ to, subject, html }) => {
       response: info.response,
       accepted: info.accepted,
       rejected: info.rejected,
+      pending: info.pending,
       timeTaken: `${endTime - startTime}ms`,
     });
+
+    console.log("📨 ========== EMAIL PROCESS COMPLETED ==========\n");
     return true;
   } catch (err) {
-    console.log("❌ EMAIL SENDING FAILED!", err);
+    console.error("❌ EMAIL SENDING FAILED!", {
+      name: err.name,
+      message: err.message,
+      code: err.code,
+      response: err.response,
+      stack: err.stack,
+    });
+    console.log("📨 ========== EMAIL PROCESS FAILED ==========\n");
     return false;
   }
-};
+}
 
 // ---------- Email Template Generator ----------
 const getEmailTemplate = (content, title = "") => `
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title}</title>
 </head>
 <body style="margin:0; padding:0; font-family: 'Segoe UI', Arial, sans-serif; background-color:#f7f9fc;">
   ${content}
@@ -106,6 +130,7 @@ const getEmailTemplate = (content, title = "") => `
 
 // ---------- Password Reset Email ----------
 exports.sendPasswordResetEmail = async (toEmail, resetToken) => {
+  console.log("\n🔐 ========== PASSWORD RESET EMAIL ==========");
   const resetLink = `${process.env.FRONTEND_URL}/super-admin/reset-password?token=${resetToken}`;
 
   const content = `
@@ -134,6 +159,8 @@ exports.sendPasswordResetEmail = async (toEmail, resetToken) => {
 
 // ---------- OTP Email ----------
 exports.sendOTPEmail = async (toEmail, otp) => {
+  console.log("\n🔢 ========== OTP EMAIL ==========");
+
   const content = `
     <div style="text-align: center;">
         <h2 style="color: #2d3748; font-size: 24px; margin-bottom: 20px; font-weight: 600;">Your HUGO Verification Code</h2>
@@ -163,6 +190,8 @@ exports.sendUserStatusUpdateEmail = async (
   warningCount = 0,
   warningMessage = ""
 ) => {
+  console.log("\n📊 ========== USER STATUS EMAIL ==========");
+
   let subject, content;
 
   switch (status) {
@@ -212,9 +241,10 @@ exports.sendUserStatusUpdateEmail = async (
 
 // ---------- Test Email ----------
 exports.testEmailConnection = async () => {
+  console.log("\n🧪 ========== TEST EMAIL ==========");
   return await sendEmail({
     to: process.env.EMAIL_USER,
-    subject: "HUGO - Email Test",
+    subject: "HUGO - Test Email",
     html: `<div style="text-align:center;">
         <h2>✅ HUGO Email System Test</h2>
         <p>Status: SMTP / Gmail API Test</p>
