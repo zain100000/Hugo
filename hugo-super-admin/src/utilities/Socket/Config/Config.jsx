@@ -17,7 +17,8 @@ const CONFIG = {
    * The base URL for the WebSocket server connection
    * @type {string}
    */
-  SOCKET_URL: "http://localhost:8000/",
+  // SOCKET_URL: "http://localhost:8000/",
+  SOCKET_URL: "https://hugo-backend-2jm8.onrender.com",
 };
 
 export default CONFIG;
