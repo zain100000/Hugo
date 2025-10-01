@@ -276,7 +276,7 @@ exports.getSuperAdminById = async (req, res) => {
  */
 exports.forgotPassword = async (req, res) => {
   // 🔍 DEBUGGING: Log incoming request
-  console.log(`\n--- Forgot Password Request ---`);
+  console.log(`\n--- Forgot Password Request Initiated ---`);
   console.log("Request Body:", req.body);
 
   try {
@@ -288,14 +288,13 @@ exports.forgotPassword = async (req, res) => {
         success: false,
         message: "Email is required",
       });
-    }
+    } // NOTE: Assume SuperAdmin is defined/imported
 
-    // NOTE: SuperAdmin needs to be defined/imported in the actual file. Assuming its existence.
     const superAdmin = await SuperAdmin.findOne({ email: email.toLowerCase() });
 
     if (!superAdmin) {
       console.log(
-        `⚠️ Admin Not Found: ${email}. Sending generic success message.`
+        `⚠️ Admin Not Found: ${email}. Returning generic success message for security.`
       );
       return res.status(200).json({
         success: true,
@@ -309,18 +308,17 @@ exports.forgotPassword = async (req, res) => {
 
     superAdmin.passwordResetToken = resetToken;
     superAdmin.passwordResetExpires = resetTokenExpiry;
-    await superAdmin.save();
+    await superAdmin.save(); // 🔍 DEBUGGING: Log token generation
 
-    // 🔍 DEBUGGING: Log token generation
-    console.log(`Token Generated for ${email}: ${resetToken}`);
-    console.log(`Token Expiry: ${new Date(resetTokenExpiry)}`);
+    console.log(`🔑 Token Generated for ${email}: ${resetToken}`);
+    console.log(`⏲️ Token Expiry: ${new Date(resetTokenExpiry)}`); // Attempt to send email
 
     const emailSent = await sendPasswordResetEmail(email, resetToken);
 
     if (!emailSent) {
-      // 🔍 DEBUGGING: Log email sending failure
+      // ❌ DEBUGGING: Log email sending failure from controller
       console.error(
-        "❌ Controller Error: sendPasswordResetEmail returned false."
+        "❌ Controller Error: sendPasswordResetEmail returned false. (Check emailUtils logs for details)"
       );
       return res.status(500).json({
         success: false,
@@ -328,13 +326,18 @@ exports.forgotPassword = async (req, res) => {
       });
     }
 
-    console.log(`✅ Success: Reset link email triggered for ${email}.`);
+    console.log(
+      `✅ Controller Success: Reset link email sent successfully for ${email}.\n`
+    );
     res.status(200).json({
       success: true,
       message: "Link sent successfully! Please check your email",
     });
   } catch (error) {
-    console.error("❌ Error in forgot password:", error);
+    console.error(
+      "❌ Fatal Error in forgot password controller:",
+      error.message
+    );
     res.status(500).json({
       success: false,
       message: "Server error",
