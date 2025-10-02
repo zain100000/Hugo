@@ -114,7 +114,7 @@ exports.registerUser = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: "User registered successfully! You received 100 coins!",
+      message: "User registered successfully!",
       user: {
         id: user._id,
         userName: user.userName,
