@@ -9,6 +9,11 @@
  * @property {string} [bio] - User biography (max length: 200 characters)
  * @property {string} [gender] - User gender (enum: "MALE", "FEMALE")
  * @property {Date} [dob] - User date of birth
+ * @property {number} [height] - User height in centimeters
+ * @property {number} [weight] - User weight in kilograms
+ * @property {string} [occupation] - User occupation
+ * @property {string} [currentAddress] - User current address
+ * @property {string} [nationality] - User nationality (ISO 3166-1 alpha-2 country code)
  * @property {string} [role="USER"] - User role (enum: "USER", "SUPER-ADMIN")
  * @property {boolean} [isVerified=false] - Email verification status
  * @property {string} [status="ACTIVE"] - Account status (enum: "ACTIVE", "SUSPENDED", "BANNED")
@@ -85,6 +90,37 @@ const userSchema = new mongoose.Schema(
 
     dob: {
       type: Date,
+    },
+
+    height: {
+      type: Number,
+      min: 50,
+      max: 300,
+      default: null,
+    },
+
+    weight: {
+      type: Number,
+      min: 20,
+      max: 500,
+      default: null,
+    },
+
+    occupation: {
+      type: String,
+      maxlength: 100,
+      default: null,
+    },
+
+    currentAddress: {
+      type: String,
+      maxlength: 200,
+      default: null,
+    },
+
+    nationality: {
+      type: String,
+      default: null,
     },
 
     role: {

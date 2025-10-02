@@ -23,7 +23,7 @@ import logoutAnimation from '../../assets/animations/logout.json';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {useNavigation} from '@react-navigation/native';
 import {theme} from '../../styles/theme';
-import {logoutUser} from '../../redux/slices/authSlice';
+import {logoutUser} from '../../redux/slices/auth.slice';
 import {useDispatch} from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
@@ -48,7 +48,8 @@ const LogoutModal = ({visible, title, description, onClose}) => {
         Toast.show({
           type: 'success',
           text1: 'Logout Successful',
-          text2: 'You have been logout successfully',
+          text2:
+            resultAction.message || 'You have been logged out successfully',
         });
 
         setTimeout(() => {
@@ -58,14 +59,16 @@ const LogoutModal = ({visible, title, description, onClose}) => {
         Toast.show({
           type: 'error',
           text1: 'Logout Failed',
-          text2: resultAction.message || 'Unknown error.',
+          text2: resultAction.message || 'Unknown error occurred',
         });
       }
     } catch (error) {
+      const backendMessage =
+        error?.backendMessage || error?.message || 'Something went wrong';
       Toast.show({
         type: 'error',
         text1: 'Logout Error',
-        text2: error?.message || 'Something went wrong.',
+        text2: backendMessage,
       });
     } finally {
       setLoading(false);
@@ -95,7 +98,7 @@ const LogoutModal = ({visible, title, description, onClose}) => {
                 <View style={styles.icon}>
                   <Ionicons
                     name="close-circle"
-                    size={25}
+                    size={width * 0.05}
                     color={theme.colors.white}
                   />
                 </View>
@@ -113,13 +116,13 @@ const LogoutModal = ({visible, title, description, onClose}) => {
                     alignItems: 'center',
                   }}>
                   {loading ? (
-                    <ActivityIndicator size={25} color={theme.colors.white} />
+                    <ActivityIndicator size={width * 0.05} color={theme.colors.white} />
                   ) : (
                     <>
                       <View style={styles.icon}>
                         <Ionicons
                           name="checkmark-circle"
-                          size={25}
+                          size={width * 0.05}
                           color={theme.colors.white}
                         />
                       </View>
@@ -147,31 +150,22 @@ const styles = StyleSheet.create({
   },
 
   modalView: {
-    margin: 20,
     backgroundColor: theme.colors.white,
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: theme.borderRadius.large,
+    padding: height * 0.02,
     alignItems: 'center',
-    shadowColor: theme.colors.dark,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
     width: width * 0.92,
-    height: height * 0.44,
+    height: height * 0.48,
   },
 
   animation: {
     width: width * 0.4,
     height: width * 0.4,
-    marginBottom: 15,
+    marginBottom: height * 0.04,
   },
 
   modalText: {
-    marginBottom: 15,
+    marginBottom: height * 0.02,
     textAlign: 'center',
     fontSize: width * 0.05,
     color: theme.colors.dark,
@@ -183,53 +177,53 @@ const styles = StyleSheet.create({
     color: theme.colors.secondary,
     fontFamily: theme.typography.montserrat.regular,
     fontSize: width * 0.04,
-    marginBottom: 20,
+    marginBottom: height * 0.04,
   },
 
   btnContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    gap: 30,
+    gap: theme.gap(2),
     width: '100%',
   },
 
   cancelContainer: {
     flexDirection: 'row',
     backgroundColor: theme.colors.dark,
-    borderRadius: 10,
-    gap: 10,
+    borderRadius: theme.borderRadius.medium,
+    gap: theme.gap(1),
     paddingVertical: height * 0.022,
     paddingHorizontal: height * 0.02,
-    marginHorizontal: width * 0.003,
     width: width * 0.35,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   proceedContainer: {
     flexDirection: 'row',
-    backgroundColor: theme.colors.primary,
-    borderRadius: 10,
-    gap: 10,
+    backgroundColor: theme.colors.success,
+    borderRadius: theme.borderRadius.medium,
+    gap: theme.gap(1),
     paddingVertical: height * 0.022,
     paddingHorizontal: height * 0.02,
-    marginHorizontal: width * 0.003,
     width: width * 0.35,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   cancelText: {
     fontSize: width * 0.04,
-    top: height * 0.0036,
     color: theme.colors.white,
     fontFamily: theme.typography.montserrat.regular,
   },
 
   proceedText: {
     fontSize: width * 0.04,
-    top: height * 0.0036,
     color: theme.colors.white,
     fontFamily: theme.typography.montserrat.regular,
   },
 
   icon: {
-    top: height * 0.002,
+    marginRight: width * 0.01,
   },
 });

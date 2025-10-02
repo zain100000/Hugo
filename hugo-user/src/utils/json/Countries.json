@@ -1,0 +1,444 @@
+{
+  "countries": [
+    {
+      "code": "PK",
+      "name": "Pakistan",
+      "flag": "🇵🇰",
+      "cities": [
+        "Karachi",
+        "Lahore",
+        "Islamabad",
+        "Rawalpindi",
+        "Faisalabad",
+        "Multan",
+        "Peshawar",
+        "Quetta"
+      ]
+    },
+    {
+      "code": "DE",
+      "name": "Germany",
+      "flag": "🇩🇪",
+      "cities": [
+        "Berlin",
+        "Munich",
+        "Hamburg",
+        "Frankfurt",
+        "Cologne",
+        "Stuttgart",
+        "Düsseldorf",
+        "Dortmund"
+      ]
+    },
+    {
+      "code": "SA",
+      "name": "Saudi Arabia",
+      "flag": "🇸🇦",
+      "cities": [
+        "Riyadh",
+        "Jeddah",
+        "Mecca",
+        "Medina",
+        "Dammam",
+        "Taif",
+        "Tabuk",
+        "Abha"
+      ]
+    },
+    {
+      "code": "EG",
+      "name": "Egypt",
+      "flag": "🇪🇬",
+      "cities": [
+        "Cairo",
+        "Alexandria",
+        "Giza",
+        "Shubra El-Kheima",
+        "Port Said",
+        "Suez",
+        "Luxor",
+        "Mansoura"
+      ]
+    },
+    {
+      "code": "LB",
+      "name": "Lebanon",
+      "flag": "🇱🇧",
+      "cities": [
+        "Beirut",
+        "Tripoli",
+        "Sidon",
+        "Tyre",
+        "Byblos",
+        "Zahle",
+        "Baalbek",
+        "Jounieh"
+      ]
+    },
+    {
+      "code": "AE",
+      "name": "United Arab Emirates",
+      "flag": "🇦🇪",
+      "cities": [
+        "Dubai",
+        "Abu Dhabi",
+        "Sharjah",
+        "Al Ain",
+        "Ajman",
+        "Ras Al Khaimah",
+        "Fujairah",
+        "Umm Al Quwain"
+      ]
+    },
+    {
+      "code": "KW",
+      "name": "Kuwait",
+      "flag": "🇰🇼",
+      "cities": [
+        "Kuwait City",
+        "Al Ahmadi",
+        "Hawalli",
+        "As Salimiyah",
+        "Sabah Al Salem",
+        "Al Farwaniyah",
+        "Al Jahra"
+      ]
+    },
+    {
+      "code": "OM",
+      "name": "Oman",
+      "flag": "🇴🇲",
+      "cities": [
+        "Muscat",
+        "Salalah",
+        "Sohar",
+        "Seeb",
+        "Nizwa",
+        "Sur",
+        "Al Buraimi",
+        "Barka"
+      ]
+    },
+    {
+      "code": "QA",
+      "name": "Qatar",
+      "flag": "🇶🇦",
+      "cities": [
+        "Doha",
+        "Al Rayyan",
+        "Umm Salal",
+        "Al Wakrah",
+        "Al Khor",
+        "Al Shamal",
+        "Mesaieed",
+        "Lusail"
+      ]
+    },
+    {
+      "code": "BH",
+      "name": "Bahrain",
+      "flag": "🇧🇭",
+      "cities": [
+        "Manama",
+        "Riffa",
+        "Muharraq",
+        "Hamad Town",
+        "A'ali",
+        "Isa Town",
+        "Sitra",
+        "Budaiya"
+      ]
+    },
+    {
+      "code": "JO",
+      "name": "Jordan",
+      "flag": "🇯🇴",
+      "cities": [
+        "Amman",
+        "Zarqa",
+        "Irbid",
+        "Russeifa",
+        "Al Quwaysimah",
+        "Wadi as Sir",
+        "Aqaba",
+        "Madaba"
+      ]
+    },
+    {
+      "code": "MA",
+      "name": "Morocco",
+      "flag": "🇲🇦",
+      "cities": [
+        "Casablanca",
+        "Rabat",
+        "Fes",
+        "Marrakesh",
+        "Tangier",
+        "Meknes",
+        "Agadir",
+        "Oujda"
+      ]
+    },
+    {
+      "code": "LY",
+      "name": "Libya",
+      "flag": "🇱🇾",
+      "cities": [
+        "Tripoli",
+        "Benghazi",
+        "Misrata",
+        "Tarhuna",
+        "Al Bayda",
+        "Al Khums",
+        "Zawiya",
+        "Sabha"
+      ]
+    },
+    {
+      "code": "PS",
+      "name": "Palestinian Territory",
+      "flag": "🇵🇸",
+      "cities": [
+        "Gaza",
+        "East Jerusalem",
+        "Hebron",
+        "Nablus",
+        "Jenin",
+        "Ramallah",
+        "Bethlehem",
+        "Jericho"
+      ]
+    },
+    {
+      "code": "TR",
+      "name": "Turkey",
+      "flag": "🇹🇷",
+      "cities": [
+        "Istanbul",
+        "Ankara",
+        "Izmir",
+        "Bursa",
+        "Antalya",
+        "Konya",
+        "Adana",
+        "Gaziantep"
+      ]
+    },
+    {
+      "code": "IN",
+      "name": "India",
+      "flag": "🇮🇳",
+      "cities": [
+        "Mumbai",
+        "Delhi",
+        "Bangalore",
+        "Hyderabad",
+        "Ahmedabad",
+        "Chennai",
+        "Kolkata",
+        "Pune"
+      ]
+    },
+    {
+      "code": "ID",
+      "name": "Indonesia",
+      "flag": "🇮🇩",
+      "cities": [
+        "Jakarta",
+        "Surabaya",
+        "Bandung",
+        "Medan",
+        "Semarang",
+        "Makassar",
+        "Palembang",
+        "Tangerang"
+      ]
+    },
+    {
+      "code": "MY",
+      "name": "Malaysia",
+      "flag": "🇲🇾",
+      "cities": [
+        "Kuala Lumpur",
+        "George Town",
+        "Ipoh",
+        "Shah Alam",
+        "Petaling Jaya",
+        "Kuching",
+        "Kota Kinabalu",
+        "Johor Bahru"
+      ]
+    },
+    {
+      "code": "AZ",
+      "name": "Azerbaijan",
+      "flag": "🇦🇿",
+      "cities": [
+        "Baku",
+        "Ganja",
+        "Sumqayit",
+        "Mingachevir",
+        "Lankaran",
+        "Shirvan",
+        "Nakhchivan",
+        "Shaki"
+      ]
+    },
+    {
+      "code": "US",
+      "name": "United States",
+      "flag": "🇺🇸",
+      "cities": [
+        "New York",
+        "Los Angeles",
+        "Chicago",
+        "Houston",
+        "Phoenix",
+        "Philadelphia",
+        "San Antonio",
+        "San Diego"
+      ]
+    },
+    {
+      "code": "GB",
+      "name": "United Kingdom",
+      "flag": "🇬🇧",
+      "cities": [
+        "London",
+        "Birmingham",
+        "Manchester",
+        "Glasgow",
+        "Liverpool",
+        "Bristol",
+        "Sheffield",
+        "Leeds"
+      ]
+    },
+    {
+      "code": "CA",
+      "name": "Canada",
+      "flag": "🇨🇦",
+      "cities": [
+        "Toronto",
+        "Montreal",
+        "Vancouver",
+        "Calgary",
+        "Edmonton",
+        "Ottawa",
+        "Winnipeg",
+        "Quebec City"
+      ]
+    },
+    {
+      "code": "AU",
+      "name": "Australia",
+      "flag": "🇦🇺",
+      "cities": [
+        "Sydney",
+        "Melbourne",
+        "Brisbane",
+        "Perth",
+        "Adelaide",
+        "Gold Coast",
+        "Canberra",
+        "Newcastle"
+      ]
+    },
+    {
+      "code": "FR",
+      "name": "France",
+      "flag": "🇫🇷",
+      "cities": [
+        "Paris",
+        "Marseille",
+        "Lyon",
+        "Toulouse",
+        "Nice",
+        "Nantes",
+        "Strasbourg",
+        "Montpellier"
+      ]
+    },
+    {
+      "code": "IT",
+      "name": "Italy",
+      "flag": "🇮🇹",
+      "cities": [
+        "Rome",
+        "Milan",
+        "Naples",
+        "Turin",
+        "Palermo",
+        "Genoa",
+        "Bologna",
+        "Florence"
+      ]
+    },
+    {
+      "code": "ES",
+      "name": "Spain",
+      "flag": "🇪🇸",
+      "cities": [
+        "Madrid",
+        "Barcelona",
+        "Valencia",
+        "Seville",
+        "Zaragoza",
+        "Malaga",
+        "Murcia",
+        "Palma"
+      ]
+    },
+    {
+      "code": "CN",
+      "name": "China",
+      "flag": "🇨🇳",
+      "cities": [
+        "Beijing",
+        "Shanghai",
+        "Guangzhou",
+        "Shenzhen",
+        "Chengdu",
+        "Wuhan",
+        "Xi'an",
+        "Tianjin"
+      ]
+    },
+    {
+      "code": "JP",
+      "name": "Japan",
+      "flag": "🇯🇵",
+      "cities": [
+        "Tokyo",
+        "Yokohama",
+        "Osaka",
+        "Nagoya",
+        "Sapporo",
+        "Fukuoka",
+        "Kobe",
+        "Kyoto"
+      ]
+    },
+    {
+      "code": "KR",
+      "name": "South Korea",
+      "flag": "🇰🇷",
+      "cities": [
+        "Seoul",
+        "Busan",
+        "Incheon",
+        "Daegu",
+        "Daejeon",
+        "Gwangju",
+        "Suwon",
+        "Ulsan"
+      ]
+    },
+    {
+      "code": "SG",
+      "name": "Singapore",
+      "flag": "🇸🇬",
+      "cities": ["Singapore"]
+    }
+  ]
+}

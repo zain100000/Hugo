@@ -71,9 +71,8 @@ const OnBoarding = () => {
   ];
 
   useEffect(() => {
-    StatusBar.setBackgroundColor('transparent');
-    StatusBar.setTranslucent(true);
-    StatusBar.setBarStyle('light-content');
+    const statusBarColor = theme.colors.tertiary;
+    StatusBar.setBackgroundColor(statusBarColor);
   }, []);
 
   useEffect(() => {

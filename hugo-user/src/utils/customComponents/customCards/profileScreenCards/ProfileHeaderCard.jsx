@@ -1,16 +1,28 @@
 /**
- * Profile header card component displaying user information and action button
- * Features gradient background, user image, name, phone number, and action button
- * @param {Object} props - Component properties
- * @param {string} props.image - User profile image URL or source
- * @param {string} props.name - User's display name
- * @param {string} props.phone - User's phone number
- * @param {string} props.btnTitle - Text for the action button
- * @param {Function} props.onPress - Callback for button press
- * @param {boolean} props.loading - Loading state for the button
+ * Profile Header Card Component
+ *
+ * Displays user avatar, name, static description, and profile stats.
+ * Includes a chevron icon for navigating to profile edit screen.
+ * Stats (Followers, Following, Friends) are touchable and navigate to detail screens.
+ *
+ * @component
+ * @example
+ * return (
+ *   <ProfileHeaderCard
+ *     image={userProfile?.profilePicture}
+ *     name={userProfile?.userName}
+ *     followersCount={userProfile?.followers?.length}
+ *     followingCount={userProfile?.following?.length}
+ *     friendsCount={friendsCount}
+ *     onEditPress={() => navigation.navigate('EditProfile')}
+ *     onFollowersPress={() => navigation.navigate('Followers')}
+ *     onFollowingPress={() => navigation.navigate('Following')}
+ *     onFriendsPress={() => navigation.navigate('Friends')}
+ *   />
+ * )
  */
 
-import React, {useState} from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -18,29 +30,31 @@ import {
   SafeAreaView,
   Dimensions,
   Image,
+  TouchableOpacity,
 } from 'react-native';
 import {globalStyles} from '../../../../styles/globalStyles';
-import Button from '../../customButton/Button';
 import {theme} from '../../../../styles/theme';
-import LinearGradient from 'react-native-linear-gradient';
 import imgPlaceHolder from '../../../../assets/placeholders/default-avatar.png';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const {width, height} = Dimensions.get('screen');
 
 const ProfileHeaderCard = ({
   image,
   name,
-  phone,
-  btnTitle,
-  onPress,
-  loading,
+  followersCount = 0,
+  followingCount = 0,
+  friendsCount = 0,
+  onEditPress,
+  onFollowersPress,
+  onFollowingPress,
+  onFriendsPress,
 }) => {
   return (
     <SafeAreaView style={[globalStyles.container, styles.primaryContainer]}>
-      <LinearGradient
-        colors={[theme.colors.primary, theme.colors.white]}
-        style={styles.gradientContainer}>
-        <View style={styles.cardContainer}>
+      <View style={styles.cardContainer}>
+        {/* User Info Section */}
+        <View style={styles.userInfoContainer}>
           <View style={styles.imgContainer}>
             {image ? (
               <Image source={{uri: image}} style={styles.img} />
@@ -50,19 +64,33 @@ const ProfileHeaderCard = ({
           </View>
           <View style={styles.infoContainer}>
             <Text style={styles.name}>{name}</Text>
-            <Text style={styles.phone}>{phone}</Text>
+            <Text style={styles.description}>View or edit your profile</Text>
           </View>
-          <View style={styles.btnContainer}>
-            <Button
-              title={btnTitle}
-              onPress={onPress}
-              loading={loading}
-              backgroundColor={theme.colors.primary}
-              textColor={theme.colors.white}
+          <TouchableOpacity onPress={onEditPress}>
+            <MaterialCommunityIcons
+              name="chevron-right"
+              size={22}
+              color={theme.colors.secondary}
             />
-          </View>
+          </TouchableOpacity>
         </View>
-      </LinearGradient>
+
+        {/* Statistics Section */}
+        <View style={styles.statsContainer}>
+          <TouchableOpacity style={styles.statItem} onPress={onFollowingPress}>
+            <Text style={styles.statNumber}>{followingCount}</Text>
+            <Text style={styles.statLabel}>Following</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.statItem} onPress={onFriendsPress}>
+            <Text style={styles.statNumber}>{friendsCount}</Text>
+            <Text style={styles.statLabel}>Friends</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.statItem} onPress={onFollowersPress}>
+            <Text style={styles.statNumber}>{followersCount}</Text>
+            <Text style={styles.statLabel}>Followers</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </SafeAreaView>
   );
 };
@@ -70,30 +98,30 @@ const ProfileHeaderCard = ({
 export default ProfileHeaderCard;
 
 const styles = StyleSheet.create({
-  gradientContainer: {
+  cardContainer: {
+    padding: height * 0.02,
+    backgroundColor: theme.colors.white,
     borderRadius: theme.borderRadius.large,
     marginHorizontal: width * 0.02,
     shadowColor: theme.colors.dark,
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 8,
+    shadowRadius: 4,
+    elevation: 4,
   },
 
-  cardContainer: {
-    padding: height * 0.014,
-    borderRadius: theme.borderRadius.large,
-    backgroundColor: theme.colors.white + '90',
+  userInfoContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: height * 0.015,
   },
 
   imgContainer: {
-    width: width * 0.12,
-    height: width * 0.12,
+    width: width * 0.15,
+    height: width * 0.15,
     borderRadius: theme.borderRadius.circle,
     overflow: 'hidden',
+    marginRight: width * 0.04,
   },
 
   img: {
@@ -103,7 +131,7 @@ const styles = StyleSheet.create({
   },
 
   infoContainer: {
-    top: height * 0.012,
+    flex: 1,
   },
 
   name: {
@@ -112,10 +140,34 @@ const styles = StyleSheet.create({
     color: theme.colors.dark,
   },
 
-  phone: {
-    fontSize: theme.typography.fontSize.sm,
+  description: {
+    fontSize: theme.typography.fontSize.xs,
     fontFamily: theme.typography.montserrat.medium,
     color: theme.colors.secondary,
-    marginBottom: height * 0.03,
+    marginTop: 2,
+  },
+
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+
+  statItem: {
+    alignItems: 'center',
+    paddingHorizontal: width * 0.02,
+  },
+
+  statNumber: {
+    fontSize: theme.typography.fontSize.lg,
+    fontFamily: theme.typography.montserrat.bold,
+    color: theme.colors.dark,
+    marginBottom: height * 0.004,
+  },
+
+  statLabel: {
+    fontSize: theme.typography.fontSize.xs,
+    fontFamily: theme.typography.montserrat.medium,
+    color: theme.colors.secondary,
   },
 });

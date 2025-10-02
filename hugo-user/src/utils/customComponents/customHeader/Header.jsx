@@ -132,10 +132,10 @@ const styles = StyleSheet.create({
   },
 
   logoTitleGroup: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: width * 0.025,
-    flex: 1,
     marginLeft: width * 0.04,
   },
 
@@ -146,14 +146,15 @@ const styles = StyleSheet.create({
   },
 
   logo: {
-    width: width * 0.08,
-    height: width * 0.08,
+    width: width * 0.14,
+    height: width * 0.14,
     resizeMode: 'contain',
   },
 
   title: {
     fontSize: theme.typography.fontSize.lg,
     fontFamily: theme.typography.montserrat.semiBold,
+    top: height * 0.004,
   },
 
   icon: {

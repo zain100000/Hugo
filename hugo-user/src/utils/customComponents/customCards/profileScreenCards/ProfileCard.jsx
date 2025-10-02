@@ -1,26 +1,18 @@
 /**
- * Profile screen card component for navigation items and actions
- * Displays icon, title, and navigation arrow in a consistent card layout
- * @param {Object} props - Component properties
- * @param {string} props.title - Title text displayed in the card
- * @param {string} props.iconName - Ionicons icon name for the card
- * @param {string} props.navigationTarget - Screen name for navigation
- * @param {string} props.rightIcon - Right side icon name
- * @param {string} props.iconColor - Color for the main icon
- * @param {string} props.textColor - Color for the title text
- * @param {Function} props.onPressFunction - Custom press handler function
+ * Enhanced Profile screen card component
+ * Animated (built-in RN), modern, and clean version for navigation and actions
  */
 
-import React from 'react';
+import React, {useRef, useEffect} from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   StyleSheet,
   Dimensions,
-  SafeAreaView,
+  Animated,
+  Pressable,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {useNavigation} from '@react-navigation/native';
 import {globalStyles} from '../../../../styles/globalStyles';
 import {theme} from '../../../../styles/theme';
@@ -38,6 +30,41 @@ const ProfileScreenCard = ({
 }) => {
   const navigation = useNavigation();
 
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(10)).current;
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 350,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 350,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [fadeAnim, translateY]);
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.96,
+      friction: 5,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      friction: 5,
+      useNativeDriver: true,
+    }).start();
+  };
+
   const handlePress = () => {
     if (navigationTarget) {
       navigation.navigate(navigationTarget);
@@ -47,82 +74,90 @@ const ProfileScreenCard = ({
   };
 
   return (
-    <SafeAreaView style={[globalStyles.container, styles.primaryContainer]}>
-      <View style={styles.cardContainer}>
-        <View style={styles.cardLeftContainer}>
-          <View style={styles.cardIconContainer}>
+    <Animated.View
+      style={[
+        globalStyles.container,
+        styles.primaryContainer,
+        {
+          opacity: fadeAnim,
+          transform: [{translateY}],
+        },
+      ]}>
+      <Pressable
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}>
+        <Animated.View
+          style={[
+            styles.cardContainer,
+            {
+              transform: [{scale: scaleAnim}],
+            },
+          ]}>
+          <View style={styles.cardLeftContainer}>
             <View style={styles.iconBackground}>
-              <Ionicons
+              <MaterialCommunityIcons
                 name={iconName || 'cog-outline'}
                 size={width * 0.05}
-                style={[
-                  styles.cardIcon,
-                  {
-                    color: iconColor,
-                  },
-                ]}
+                color={iconColor || theme.colors.primary}
               />
             </View>
-          </View>
-
-          <View style={styles.cardTextContainer}>
             <Text
               style={[
                 styles.cardTitle,
-                {
-                  color: textColor,
-                },
+                {color: textColor || theme.colors.textPrimary},
               ]}>
               {title || 'Default Title'}
             </Text>
           </View>
-        </View>
 
-        <View style={styles.cardRightContainer}>
-          <View style={styles.cardIconContainer}>
-            <TouchableOpacity onPress={handlePress}>
-              <Ionicons
-                name={rightIcon || 'chevron-forward'}
-                size={width * 0.064}
-                color={theme.colors.primary}
-              />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </View>
-    </SafeAreaView>
+          <MaterialCommunityIcons
+            name={rightIcon || 'chevron-right'}
+            size={width * 0.04}
+            color={theme.colors.white}
+          />
+        </Animated.View>
+      </Pressable>
+    </Animated.View>
   );
 };
 
 export default ProfileScreenCard;
 
 const styles = StyleSheet.create({
+  primaryContainer: {
+    width: '100%',
+  },
+
   cardContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: width * 0.03,
+    paddingVertical: height * 0.018,
+    paddingHorizontal: width * 0.05,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    elevation: 3,
   },
 
   cardLeftContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
     alignItems: 'center',
-    marginVertical: height * 0.012,
     gap: theme.gap(2),
   },
 
-  cardIcon: {
-    top: height * 0.002,
-    borderWidth: 2,
-    borderColor: theme.colors.primary,
+  iconBackground: {
+    backgroundColor: theme.colors.secondary,
+    padding: width * 0.02,
     borderRadius: theme.borderRadius.circle,
-    padding: height * 0.0042,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 
   cardTitle: {
     fontSize: theme.typography.fontSize.sm,
-    fontFamily: theme.typography.montserrat.regular,
-    top: height * 0.002,
+    fontFamily: theme.typography.montserrat.medium,
   },
 });

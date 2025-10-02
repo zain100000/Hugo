@@ -11,7 +11,7 @@
  * @param {boolean} props.disabled - Disabled state of the button
  * @param {string} props.backgroundColor - Background color of the button
  * @param {string} props.textColor - Text color of the button
- * @param {string} props.iconName - Feather icon name for button icon
+ * @param {string} props.iconName - MaterialCommunityIcons icon name for button icon
  * @param {number} props.iconSize - Size of the icon
  * @param {string} props.iconColor - Color of the icon
  * @param {Object} props.iconStyle - Additional icon styles
@@ -20,7 +20,7 @@
 
 import React from 'react';
 import {TouchableOpacity, Text, ActivityIndicator, View} from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {globalStyles} from '../../../styles/globalStyles';
 import {theme} from '../../../styles/theme';
 
@@ -42,7 +42,7 @@ const Button = ({
 }) => {
   const renderIcon = () =>
     iconName ? (
-      <Feather
+      <MaterialCommunityIcons
         name={iconName}
         size={iconSize}
         color={iconColor || textColor}

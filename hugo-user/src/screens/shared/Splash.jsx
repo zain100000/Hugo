@@ -36,8 +36,8 @@ const Splash = () => {
   const wave2 = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    StatusBar.setBackgroundColor('transparent');
-    StatusBar.setTranslucent(true);
+    const statusBarColor = theme.colors.tertiary;
+    StatusBar.setBackgroundColor(statusBarColor);
   }, []);
 
   useEffect(() => {

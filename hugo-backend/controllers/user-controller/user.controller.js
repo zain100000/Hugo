@@ -29,8 +29,21 @@ exports.registerUser = async (req, res) => {
   let uploadedFileUrl = null;
 
   try {
-    const { userName, email, password, phone, bio, gender, dob, referralCode } =
-      req.body;
+    const {
+      userName,
+      email,
+      password,
+      phone,
+      bio,
+      gender,
+      dob,
+      referralCode,
+      height,
+      weight,
+      occupation,
+      currentAddress,
+      nationality,
+    } = req.body;
 
     if (!passwordRegex.test(password)) {
       return res.status(400).json({
@@ -104,6 +117,11 @@ exports.registerUser = async (req, res) => {
       bio,
       gender,
       dob,
+      height,
+      weight,
+      occupation,
+      currentAddress,
+      nationality,
       coins: initialCoins + referralBonus, // 100 coins + referral bonus
       role: "USER",
       isVerified: false,
@@ -357,13 +375,36 @@ exports.updateUser = async (req, res) => {
       });
     }
 
-    const allowedFields = ["userName", "bio"];
+    const allowedFields = [
+      "userName",
+      "bio",
+      "height",
+      "weight",
+      "occupation",
+      "currentAddress",
+      "nationality",
+    ];
     let updates = {};
 
     for (const field of allowedFields) {
       if (req.body[field] !== undefined && req.body[field] !== "") {
         updates[field] = req.body[field];
       }
+    }
+
+    // Explicitly exclude dob and gender from being updated
+    if (req.body.dob !== undefined) {
+      return res.status(400).json({
+        success: false,
+        message: "Date of birth cannot be updated",
+      });
+    }
+
+    if (req.body.gender !== undefined) {
+      return res.status(400).json({
+        success: false,
+        message: "Gender cannot be updated",
+      });
     }
 
     if (req.files?.profilePicture) {

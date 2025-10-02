@@ -23,7 +23,7 @@ import {globalStyles} from '../../styles/globalStyles';
 import AuthHeader from '../../utils/customComponents/customHeader/AuthHeader';
 import Logo from '../../assets/splashScreen/splash-logo.png';
 import InputField from '../../utils/customComponents/customInputField/InputField';
-import Feather from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Button from '../../utils/customComponents/customButton/Button';
 import {useDispatch} from 'react-redux';
 import {useNavigation} from '@react-navigation/native';
@@ -33,7 +33,7 @@ import {
   validateEmail,
 } from '../../utils/customValidations/Validations';
 import Toast from 'react-native-toast-message';
-import {loginUser} from '../../redux/slices/authSlice';
+import {loginUser} from '../../redux/slices/auth.slice';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -89,9 +89,9 @@ const Signin = () => {
         setEmail('');
         setPassword('');
 
-        // setTimeout(() => {
-        //   navigation.replace('Main');
-        // }, 2000);
+        setTimeout(() => {
+          navigation.replace('Main');
+        }, 2000);
       } else {
         const errorMessage =
           resultAction.payload?.message ||
@@ -149,7 +149,7 @@ const Signin = () => {
               keyboardType="email-address"
               autoCapitalize="none"
               leftIcon={
-                <Feather
+                <MaterialCommunityIcons
                   name="mail"
                   size={width * 0.044}
                   color={theme.colors.primary}
@@ -172,14 +172,14 @@ const Signin = () => {
               onChangeText={handlePasswordChange}
               secureTextEntry={hidePassword}
               leftIcon={
-                <Feather
+                <MaterialCommunityIcons
                   name="lock"
                   size={width * 0.044}
                   color={theme.colors.primary}
                 />
               }
               rightIcon={
-                <Feather
+                <MaterialCommunityIcons
                   name={hidePassword ? 'eye-off' : 'eye'}
                   size={width * 0.054}
                   color={theme.colors.primary}

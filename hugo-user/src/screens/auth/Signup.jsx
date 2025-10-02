@@ -4,6 +4,7 @@
  * Multi-step registration form with profile picture, personal details split across multiple steps.
  * Final step directly allows signup (no review screen).
  * Features validation, image upload, Redux integration, and smooth animations.
+ * Uses only MaterialCommunityIcons for all icons.
  */
 
 import React, {useState, useEffect, useRef} from 'react';
@@ -17,7 +18,6 @@ import {
   Easing,
   TouchableOpacity,
   ScrollView,
-  SafeAreaView,
   KeyboardAvoidingView,
   Platform,
   Image,
@@ -33,14 +33,13 @@ import {
   isValidInput,
 } from '../../utils/customValidations/Validations';
 import InputField from '../../utils/customComponents/customInputField/InputField';
-import Feather from 'react-native-vector-icons/Feather';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Button from '../../utils/customComponents/customButton/Button';
 import * as Animatable from 'react-native-animatable';
 import {useDispatch} from 'react-redux';
 import {useNavigation} from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
-import {registerUser} from '../../redux/slices/authSlice';
+import {registerUser} from '../../redux/slices/auth.slice';
 import ImageUploadModal from '../../utils/customModals/ImageUploadModal';
 import Logo from '../../assets/splashScreen/splash-logo.png';
 
@@ -69,15 +68,14 @@ const Signup = () => {
   const [passwordError, setPasswordError] = useState('');
   const [genderError, setGenderError] = useState('');
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const progressAnim = useRef(new Animated.Value(0)).current;
 
   const steps = ['Profile', 'Email', 'Password', 'Gender', 'Complete'];
 
   useEffect(() => {
-    StatusBar.setBackgroundColor(theme.colors.primary);
-    StatusBar.setBarStyle('dark-content');
+    StatusBar.setBackgroundColor(theme.colors.tertiary);
   }, []);
 
   useEffect(() => {
@@ -228,86 +226,82 @@ const Signup = () => {
     }
   };
 
-  const renderStepIndicator = () => {
-    return (
-      <View style={styles.stepIndicatorContainer}>
-        <View style={styles.stepTrack}>
-          <Animated.View
+  const renderStepIndicator = () => (
+    <View style={styles.stepIndicatorContainer}>
+      <View style={styles.stepTrack}>
+        <Animated.View
+          style={[
+            styles.stepProgress,
+            {
+              width: progressAnim.interpolate({
+                inputRange: [0, 100],
+                outputRange: ['0%', '100%'],
+              }),
+              backgroundColor: theme.colors.primary,
+            },
+          ]}
+        />
+      </View>
+      {steps.map((step, index) => (
+        <Animatable.View
+          key={index}
+          animation="zoomIn"
+          duration={800}
+          delay={index * 100}
+          style={[
+            styles.stepCircle,
+            {
+              backgroundColor:
+                index + 1 <= currentStep ? theme.colors.primary : '#f0f0f0',
+              borderColor: theme.colors.primary,
+            },
+          ]}>
+          <Text
             style={[
-              styles.stepProgress,
+              styles.stepText,
               {
-                width: progressAnim.interpolate({
-                  inputRange: [0, 100],
-                  outputRange: ['0%', '100%'],
-                }),
-                backgroundColor: theme.colors.primary,
-              },
-            ]}
-          />
-        </View>
-        {steps.map((step, index) => (
-          <Animatable.View
-            key={index}
-            animation="zoomIn"
-            duration={800}
-            delay={index * 100}
-            style={[
-              styles.stepCircle,
-              {
-                backgroundColor:
-                  index + 1 <= currentStep ? theme.colors.primary : '#f0f0f0',
-                borderColor: theme.colors.primary,
+                color:
+                  index + 1 <= currentStep
+                    ? theme.colors.white
+                    : theme.colors.dark,
               },
             ]}>
-            <Text
-              style={[
-                styles.stepText,
-                {
-                  color:
-                    index + 1 <= currentStep
-                      ? theme.colors.white
-                      : theme.colors.dark,
-                },
-              ]}>
-              {index + 1}
-            </Text>
-          </Animatable.View>
-        ))}
-      </View>
-    );
-  };
+            {index + 1}
+          </Text>
+        </Animatable.View>
+      ))}
+    </View>
+  );
 
-  const renderStepLabels = () => {
-    return (
-      <View style={styles.stepLabelsContainer}>
-        {steps.map((step, index) => (
-          <Animatable.View
-            key={index}
-            animation="fadeIn"
-            duration={800}
-            delay={index * 100}
-            style={styles.stepLabel}>
-            <Text
-              style={[
-                styles.stepLabelText,
-                {
-                  color:
-                    index + 1 <= currentStep
-                      ? theme.colors.primary
-                      : theme.colors.gray,
-                  fontFamily:
-                    index + 1 === currentStep
-                      ? theme.typography.montserrat.semiBold
-                      : theme.typography.montserrat.regular,
-                },
-              ]}>
-              {step}
-            </Text>
-          </Animatable.View>
-        ))}
-      </View>
-    );
-  };
+  const renderStepLabels = () => (
+    <View style={styles.stepLabelsContainer}>
+      {steps.map((step, index) => (
+        <Animatable.View
+          key={index}
+          animation="fadeIn"
+          duration={800}
+          delay={index * 100}
+          style={styles.stepLabel}>
+          <Text
+            style={[
+              styles.stepLabelText,
+              {
+                color:
+                  index + 1 <= currentStep
+                    ? theme.colors.primary
+                    : theme.colors.gray,
+                fontFamily:
+                  index + 1 === currentStep
+                    ? theme.typography.montserrat.semiBold
+                    : theme.typography.montserrat.regular,
+              },
+            ]}>
+            {step}
+          </Text>
+        </Animatable.View>
+      ))}
+    </View>
+  );
 
   const renderProfileStep = () => (
     <Animatable.View
@@ -343,8 +337,8 @@ const Signup = () => {
           value={userName}
           onChangeText={handleUserNameChange}
           leftIcon={
-            <Feather
-              name="user"
+            <MaterialCommunityIcons
+              name="account"
               size={width * 0.044}
               color={theme.colors.primary}
             />
@@ -390,8 +384,8 @@ const Signup = () => {
           keyboardType="email-address"
           autoCapitalize="none"
           leftIcon={
-            <Feather
-              name="mail"
+            <MaterialCommunityIcons
+              name="email"
               size={width * 0.044}
               color={theme.colors.primary}
             />
@@ -441,14 +435,14 @@ const Signup = () => {
           onChangeText={handlePasswordChange}
           secureTextEntry={hidePassword}
           leftIcon={
-            <Feather
+            <MaterialCommunityIcons
               name="lock"
               size={width * 0.044}
               color={theme.colors.primary}
             />
           }
           rightIcon={
-            <Feather
+            <MaterialCommunityIcons
               name={hidePassword ? 'eye-off' : 'eye'}
               size={width * 0.054}
               color={theme.colors.primary}
@@ -505,8 +499,8 @@ const Signup = () => {
           selectedValue={gender}
           onValueChange={callback => setGender(callback())}
           leftIcon={
-            <FontAwesome5
-              name="transgender-alt"
+            <MaterialCommunityIcons
+              name="gender-male-female"
               size={width * 0.044}
               color={theme.colors.primary}
             />
@@ -525,7 +519,6 @@ const Signup = () => {
           backgroundColor={theme.colors.primary}
           textColor={theme.colors.white}
         />
-
         <Button
           title="SIGN UP"
           width={width * 0.44}
@@ -619,20 +612,20 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: theme.borderRadius.large,
     borderTopRightRadius: theme.borderRadius.large,
     paddingHorizontal: width * 0.024,
-    paddingTop: height * 0.015, // reduce spacing
+    paddingTop: height * 0.015,
     paddingBottom: height * 0.015,
     gap: theme.gap(2),
   },
 
   stepProgressContainer: {
-    marginTop: height * 0.015, // reduced
-    marginBottom: height * 0.015, // reduced
+    marginTop: height * 0.015,
+    marginBottom: height * 0.015,
   },
 
   stepIndicatorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between', // keeps circles evenly spaced
+    justifyContent: 'space-between',
     marginBottom: height * 0.01,
     width: '100%',
   },
@@ -640,7 +633,7 @@ const styles = StyleSheet.create({
   stepTrack: {
     position: 'absolute',
     top: '50%',
-    transform: [{translateY: -height * 0.001}], // aligns track behind circles
+    transform: [{translateY: -height * 0.001}],
     height: height * 0.002,
     width: '100%',
     backgroundColor: '#f0f0f0',
@@ -668,18 +661,18 @@ const styles = StyleSheet.create({
 
   stepLabelsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around', // match circles
+    justifyContent: 'space-around',
     alignItems: 'flex-start',
     marginTop: height * 0.008,
     width: '100%',
   },
 
   stepLabel: {
-    width: width * 0.18, // same as circle width
+    width: width * 0.18,
   },
 
   stepContainer: {
-    marginBottom: height * 0.04, // reduced to tighten layout
+    marginBottom: height * 0.04,
   },
 
   stepLabelText: {

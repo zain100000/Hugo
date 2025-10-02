@@ -19,6 +19,15 @@ import Signin from '../screens/auth/Signin';
 import Signup from '../screens/auth/Signup';
 import ForgotPassword from '../screens/auth/ForgotPassword';
 
+// Main Imports
+import BottomNavigator from './bottomNavigator/Bottom.navigator';
+
+// Profile Sub Screens Imports
+import PrivacyPolicy from '../screens/profileModule/profileSubScreens/PrivacyPolicy';
+import AppUsage from '../screens/profileModule/profileSubScreens/AppUsage';
+import EditProfile from '../screens/profileModule/profileSubScreens/EditProfile';
+import MediaGallery from '../screens/profileModule/profileSubScreens/MediaGallery';
+
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
@@ -53,6 +62,35 @@ const AppNavigator = () => {
         <Stack.Screen name="Forgot_Password">
           {props => (
             <ForgotPassword {...props} setStatusBarColor={setStatusBarColor} />
+          )}
+        </Stack.Screen>
+
+        {/* Main Routes */}
+        <Stack.Screen name="Main">
+          {props => (
+            <BottomNavigator {...props} setStatusBarColor={setStatusBarColor} />
+          )}
+        </Stack.Screen>
+
+        {/* Profile Sub Screens Routes */}
+        <Stack.Screen name="Privacy_Policy">
+          {props => (
+            <PrivacyPolicy {...props} setStatusBarColor={setStatusBarColor} />
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="App_Usage">
+          {props => (
+            <AppUsage {...props} setStatusBarColor={setStatusBarColor} />
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="Edit_Profile">
+          {props => (
+            <EditProfile {...props} setStatusBarColor={setStatusBarColor} />
+          )}
+        </Stack.Screen>
+        <Stack.Screen name="Media_Gallery">
+          {props => (
+            <MediaGallery {...props} setStatusBarColor={setStatusBarColor} />
           )}
         </Stack.Screen>
       </Stack.Navigator>

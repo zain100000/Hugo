@@ -23,7 +23,7 @@ import {globalStyles} from '../../styles/globalStyles';
 import AuthHeader from '../../utils/customComponents/customHeader/AuthHeader';
 import Logo from '../../assets/splashScreen/splash-logo.png';
 import InputField from '../../utils/customComponents/customInputField/InputField';
-import Feather from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Button from '../../utils/customComponents/customButton/Button';
 import {useDispatch} from 'react-redux';
 import {useNavigation} from '@react-navigation/native';
@@ -32,7 +32,7 @@ import {
   validateEmail,
 } from '../../utils/customValidations/Validations';
 import Toast from 'react-native-toast-message';
-import {forgotPassword} from '../../redux/slices/authSlice'; // Assuming you have this action
+import {forgotPassword} from '../../redux/slices/auth.slice'; // Assuming you have this action
 
 const {width, height} = Dimensions.get('screen');
 
@@ -140,7 +140,7 @@ const ForgotPassword = () => {
               keyboardType="email-address"
               autoCapitalize="none"
               leftIcon={
-                <Feather
+                <MaterialCommunityIcons
                   name="mail"
                   size={width * 0.044}
                   color={theme.colors.primary}

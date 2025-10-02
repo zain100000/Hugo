@@ -21,7 +21,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import LottieView from 'lottie-react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {theme} from '../../styles/theme';
 
 import deleteAnimation from '../../assets/animations/delete.json';
@@ -52,7 +52,7 @@ const DeleteAccountModal = ({
               style={styles.animation}
             />
           ) : (
-            <Ionicons
+            <MaterialCommunityIcons
               name="warning"
               size={80}
               color={theme.colors.error}
@@ -66,9 +66,9 @@ const DeleteAccountModal = ({
           <View style={styles.btnContainer}>
             <TouchableOpacity onPress={onClose} disabled={loading}>
               <View style={styles.cancelContainer}>
-                <Ionicons
-                  name="close"
-                  size={25}
+                <MaterialCommunityIcons
+                  name="close-circle"
+                  size={width * 0.05}
                   color={theme.colors.white}
                   style={styles.icon}
                 />
@@ -85,12 +85,12 @@ const DeleteAccountModal = ({
                     alignItems: 'center',
                   }}>
                   {loading ? (
-                    <ActivityIndicator size={25} color={theme.colors.white} />
+                    <ActivityIndicator size={width * 0.05} color={theme.colors.white} />
                   ) : (
                     <>
-                      <Ionicons
-                        name="trash"
-                        size={25}
+                      <MaterialCommunityIcons
+                        name="trash-can"
+                        size={width * 0.05}
                         color={theme.colors.white}
                         style={styles.icon}
                       />
@@ -118,19 +118,10 @@ const styles = StyleSheet.create({
   },
 
   modalView: {
-    margin: 20,
     backgroundColor: theme.colors.white,
-    borderRadius: 20,
-    padding: 20,
+    borderRadius: theme.borderRadius.large,
+    padding: height * 0.02,
     alignItems: 'center',
-    shadowColor: theme.colors.dark,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
     width: width * 0.92,
     height: height * 0.48,
   },
@@ -138,11 +129,11 @@ const styles = StyleSheet.create({
   animation: {
     width: width * 0.4,
     height: width * 0.4,
-    marginBottom: 15,
+    marginBottom: height * 0.04,
   },
 
   modalText: {
-    marginBottom: 15,
+    marginBottom: height * 0.02,
     textAlign: 'center',
     fontSize: width * 0.05,
     color: theme.colors.dark,
@@ -154,41 +145,38 @@ const styles = StyleSheet.create({
     color: theme.colors.secondary,
     fontFamily: theme.typography.montserrat.regular,
     fontSize: width * 0.04,
-    marginBottom: 20,
+    marginBottom: height * 0.04,
   },
 
   btnContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    gap: 30,
+    gap: theme.gap(2),
     width: '100%',
-  },
-
-  button: {
-    flex: 1,
   },
 
   cancelContainer: {
     flexDirection: 'row',
-    backgroundColor: theme.colors.secondary,
-    borderRadius: 10,
-    gap: 10,
+    backgroundColor: theme.colors.dark,
+    borderRadius: theme.borderRadius.medium,
+    gap: theme.gap(1),
     paddingVertical: height * 0.022,
     paddingHorizontal: height * 0.02,
+    width: width * 0.35,
     justifyContent: 'center',
     alignItems: 'center',
-    width: width * 0.35,
   },
 
   deleteContainer: {
     flexDirection: 'row',
     backgroundColor: theme.colors.error,
-    borderRadius: 10,
+    borderRadius: theme.borderRadius.medium,
+    gap: theme.gap(1),
     paddingVertical: height * 0.022,
     paddingHorizontal: height * 0.02,
+    width: width * 0.35,
     justifyContent: 'center',
     alignItems: 'center',
-    width: width * 0.35,
   },
 
   cancelText: {
@@ -204,6 +192,6 @@ const styles = StyleSheet.create({
   },
 
   icon: {
-    marginRight: 8,
+    marginRight: width * 0.01,
   },
 });
