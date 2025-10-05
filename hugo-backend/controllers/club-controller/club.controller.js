@@ -359,14 +359,14 @@ exports.initializeClubSocket = (io) => {
           user.coins -= 1;
           await user.save();
 
-          // Create a new embedded message object
+          // Create a new embedded message object with sentAt timestamp
           const newChat = {
             sender: userId,
             text,
             type: type || "TEXT",
             mediaUrl: mediaUrl || undefined,
             replyTo: replyTo || undefined,
-            createdAt: new Date(),
+            sentAt: new Date(), // Explicitly set the timestamp
           };
 
           // Push and save (Mongoose will automatically assign a new ObjectId to the subdocument)

@@ -36,6 +36,8 @@ import Transaction from '../screens/transactions/Transaction';
 // User Detail Screens
 import UserDetails from '../screens/homeModule/DetailScreen/UserDetails';
 import Message from '../screens/chatModule/Message';
+import Club from '../screens/clubModule/Club';
+import ClubDetail from '../screens/clubModule/ClubDetail';
 
 const Stack = createNativeStackNavigator();
 
@@ -127,10 +129,17 @@ const AppNavigator = () => {
           )}
         </Stack.Screen>
 
-         {/* ──────────────── Chat Routes  ──────────────── */}
+        {/* ──────────────── Chat Routes  ──────────────── */}
         <Stack.Screen name="Message">
           {props => (
             <Message {...props} setStatusBarColor={setStatusBarColor} />
+          )}
+        </Stack.Screen>
+
+        {/* ──────────────── Club Routes  ──────────────── */}
+        <Stack.Screen name="Club_Detail">
+          {props => (
+            <ClubDetail {...props} setStatusBarColor={setStatusBarColor} />
           )}
         </Stack.Screen>
       </Stack.Navigator>

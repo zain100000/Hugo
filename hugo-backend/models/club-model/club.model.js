@@ -247,6 +247,10 @@ const clubSchema = new mongoose.Schema(
         deletedAt: {
           type: Date,
         },
+        sentAt: {
+          type: Date,
+          default: Date.now,
+        },
       },
     ],
   },

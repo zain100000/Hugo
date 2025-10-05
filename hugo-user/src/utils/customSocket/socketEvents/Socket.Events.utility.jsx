@@ -1,30 +1,57 @@
 // ========================================
-// 🔹 CHAT SOCKET EVENT CONSTANTS
+// 🔹 CHAT SOCKET EVENTS
 // ========================================
-
 export const CHAT_EVENTS = {
-  // ======================
-  // 🔸 Client → Server (emit)
-  // ======================
+  // Client → Server
+  CREATE_CHAT: 'createChat',
+  GET_CHATS: 'getChats',
+  GET_MESSAGE_HISTORY: 'getMessageHistory',
+  SEND_MESSAGE: 'sendMessage',
+  MARK_AS_READ: 'markAsRead',
+  DELETE_MESSAGE: 'deleteMessage',
+  DELETE_CHAT: 'deleteChat',
 
-  CREATE_CHAT: 'createChat', // Create or get a chat between two users
-  GET_CHATS: 'getChats', // Get all chats for current user
-  GET_MESSAGE_HISTORY: 'getMessageHistory', // Get messages for a specific chat
-  SEND_MESSAGE: 'sendMessage', // Send a message in a chat
-  MARK_AS_READ: 'markAsRead', // Mark message(s) as read
-  DELETE_MESSAGE: 'deleteMessage', // Delete a specific message
-  DELETE_CHAT: 'deleteChat', // Delete entire chat
+  // Server → Client
+  CHAT_CREATED: 'chatCreated',
+  CHATS_LIST: 'chatsList',
+  NEW_MESSAGE: 'newMessage',
+  MESSAGE_HISTORY: 'messageHistory',
+  MESSAGE_READ: 'messageRead',
+  MESSAGE_DELETED: 'messageDeleted',
+  CHAT_DELETED: 'chatDeleted',
+  ERROR: 'error',
+};
 
-  // ======================
-  // 🔸 Server → Client (listen)
-  // ======================
+// ========================================
+// 🔹 CLUB SOCKET EVENTS
+// ========================================
+export const CLUB_EVENTS = {
+  // Client → Server
+  CREATE_CLUB: 'createClub',
+  DELETE_CLUB: 'deleteClub',
+  GET_CLUB_MEMBERS: 'getClubMembers',
+  GET_ALL_CLUBS: 'getAllClubs',
+  GET_MESSAGE_HISTORY: 'getMessageHistory',
+  DELETE_MESSAGE: 'deleteMessage',
+  KICK_MEMBER: 'kickMember',
+  BAN_MEMBER: 'banMember',
+  MUTE_MEMBER: 'muteMember',
+  JOIN_CLUB: 'joinClub',
+  LEAVE_CLUB: 'leaveClub',
+  SEND_MESSAGE: 'sendMessage',
 
-  CHAT_CREATED: 'chatCreated', // Chat successfully created or retrieved
-  CHATS_LIST: 'chatsList', // List of all chats returned
-  NEW_MESSAGE: 'newMessage', // New incoming or outgoing message
-  MESSAGE_HISTORY: 'messageHistory', // Message history of a chat
-  MESSAGE_READ: 'messageRead', // Notification when a message is read
-  MESSAGE_DELETED: 'messageDeleted', // Message was deleted
-  CHAT_DELETED: 'chatDeleted', // Entire chat was deleted
-  ERROR: 'error', // Error event for chat actions
+  // Server → Client
+  CLUB_CREATED: 'clubCreated',
+  CLUB_DELETED: 'clubDeleted',
+  CLUB_JOINED: 'clubJoined',
+  CLUB_LEFT: 'clubLeft',
+  CLUB_MEMBERS: 'clubMembers',
+  ALL_CLUBS: 'allClubs',
+  NEW_MESSAGE: 'newMessage',
+  MESSAGE_HISTORY: 'messageHistory',
+  MESSAGE_DELETED: 'messageDeleted',
+  MEMBER_KICKED: 'memberKicked',
+  MEMBER_BANNED: 'memberBanned',
+  MEMBER_MUTED: 'memberMuted',
+  ERROR: 'error',
 };

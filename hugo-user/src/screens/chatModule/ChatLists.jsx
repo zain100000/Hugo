@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -8,49 +8,60 @@ import {
   Image,
   ActivityIndicator,
   Dimensions,
+  RefreshControl,
+  StatusBar,
 } from 'react-native';
-import { useSelector } from 'react-redux';
+import LinearGradient from 'react-native-linear-gradient';
+import {useSelector} from 'react-redux';
 import socketManager from '../../utils/customSocket/Socket.Manager.utility';
 import * as socketActions from '../../utils/customSocket/socketActions/Socket.Actions.utility';
-import { theme } from '../../styles/theme';
-import { useNavigation } from '@react-navigation/native';
+import {theme} from '../../styles/theme';
+import {useNavigation} from '@react-navigation/native';
+import Header from '../../utils/customComponents/customHeader/Header';
+import Logo from '../../assets/splashScreen/splash-logo.png';
 
-const { width, height } = Dimensions.get('screen');
+const {width, height} = Dimensions.get('screen');
 
 /**
- * ChatLists component to render all user chats in a list.
+ * ChatLists component to render all user chats in a list with enhanced UI.
  * @component
  */
 const ChatLists = () => {
   const navigation = useNavigation();
-  const currentUser = useSelector((state) => state.auth?.user);
-  const currentUserId = currentUser?._id || currentUser?.id || currentUser?.userId;
+  const currentUser = useSelector(state => state.auth?.user);
+  const currentUserId =
+    currentUser?._id || currentUser?.id || currentUser?.userId;
 
   const [chats, setChats] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
+    StatusBar.setBackgroundColor(theme.colors.primary);
+    StatusBar.setBarStyle('light-content');
+
     if (!socketManager.isConnected()) socketManager.initialize();
 
-    socketActions.listenToChatsList((data) => {
+    socketActions.listenToChatsList(data => {
       console.log('📥 Received chats list:', data);
-      if (data?.chats) {
-        setChats(data.chats);
-      }
+      if (data?.chats) setChats(data.chats);
       setLoading(false);
     });
 
     console.log('📤 Requesting all chats...');
     socketActions.getChats();
 
-    return () => {
-      socketActions.removeChatsListListener();
-    };
+    return () => socketActions.removeChatsListListener();
   }, []);
 
-  const openChat = (chat) => {
-    const otherUser = chat.participants.find((p) => p._id !== currentUserId);
-    console.log('🔹 Opening chat with:', otherUser);
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    socketActions.getChats();
+    setTimeout(() => setRefreshing(false), 1000);
+  }, []);
+
+  const openChat = chat => {
+    const otherUser = chat.participants.find(p => p._id !== currentUserId);
     navigation.navigate('Message', {
       targetUserId: otherUser._id,
       userName: otherUser.userName,
@@ -58,14 +69,17 @@ const ChatLists = () => {
     });
   };
 
-  const renderChatItem = ({ item }) => {
-    const otherUser = item.participants.find((p) => p._id !== currentUserId);
+  const renderChatItem = ({item}) => {
+    const otherUser = item.participants.find(p => p._id !== currentUserId);
     const lastMessage = item.lastMessage;
 
     return (
       <TouchableOpacity style={styles.chatCard} onPress={() => openChat(item)}>
         {otherUser.profilePicture ? (
-          <Image source={{ uri: otherUser.profilePicture }} style={styles.avatar} />
+          <Image
+            source={{uri: otherUser.profilePicture}}
+            style={styles.avatar}
+          />
         ) : (
           <View style={[styles.avatar, styles.avatarPlaceholder]}>
             <Text style={styles.avatarInitial}>
@@ -91,34 +105,52 @@ const ChatLists = () => {
             </Text>
           )}
           {lastMessage?.isRead === false &&
-            lastMessage?.sender?._id !== currentUserId && <View style={styles.unreadDot} />}
+            lastMessage?.sender?._id !== currentUserId && (
+              <View style={styles.unreadDot} />
+            )}
         </View>
       </TouchableOpacity>
     );
   };
 
-  if (loading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color={theme.colors.primary} />
-      </View>
-    );
-  }
-
   return (
-    <FlatList
-      data={chats}
-      keyExtractor={(item) => item._id}
-      renderItem={renderChatItem}
-      contentContainerStyle={styles.listContainer}
-      showsVerticalScrollIndicator={false}
-    />
+    <LinearGradient
+      colors={[theme.colors.primary, theme.colors.tertiary]}
+      style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Header title="Chats" logo={Logo} />
+      </View>
+
+      {loading ? (
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color={theme.colors.white} />
+        </View>
+      ) : chats?.length > 0 ? (
+        <FlatList
+          data={chats}
+          keyExtractor={item => item._id}
+          renderItem={renderChatItem}
+          contentContainerStyle={styles.listContainer}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        />
+      ) : (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>No chats found!</Text>
+        </View>
+      )}
+    </LinearGradient>
   );
 };
 
 export default ChatLists;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
 
   listContainer: {
     paddingVertical: height * 0.02,
@@ -133,7 +165,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: theme.colors.white,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {width: 0, height: 2},
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
@@ -201,4 +233,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: height * 0.02,
+  },
+
+  emptyText: {
+    fontSize: theme.typography.fontSize.lg,
+    fontFamily: theme.typography.montserrat.semiBold,
+    color: theme.colors.white,
+  },
 });
