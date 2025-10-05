@@ -47,19 +47,22 @@ const chatSchema = new mongoose.Schema(
      * Users participating in this chat conversation
      * Always contains exactly 2 users for 1-on-1 chats
      */
-    participants: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-        validate: {
-          validator: function (participants) {
-            return participants.length === 2;
-          },
-          message: "Chat must have exactly 2 participants for 1-on-1 messaging",
+    participants: {
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
         },
+      ],
+      validate: {
+        validator: function (participants) {
+          return participants.length === 2;
+        },
+        message: "Chat must have exactly 2 participants for 1-on-1 messaging",
       },
-    ],
+      required: true,
+    },
 
     /**
      * Array of messages in this chat conversation

@@ -16,8 +16,7 @@ router.post(
  * @description Route to get all packages.
  */
 router.get(
-  "/super-admin/get-all-packages",
-  authMiddleware,
+  "/get-all-packages",
   coinPackageController.getAllCoinPackages
 );
 

@@ -1,15 +1,10 @@
 /**
- * Image selection modal with camera and gallery options
- * Provides image cropping functionality and upload handling with animations
- * @param {Object} props - Component properties
- * @param {boolean} props.visible - Controls modal visibility
- * @param {string} props.title - Modal title text
- * @param {string} props.description - Modal description text
- * @param {Function} props.onClose - Close modal callback
- * @param {Function} props.onImageUpload - Image selection callback
+ * Receipt Upload Modal
+ * User can upload payment receipt using Camera or Gallery
+ * Only two options, no extra buttons
  */
 
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {
   Modal,
   View,
@@ -29,19 +24,14 @@ import uploadAnimation from '../../assets/animations/image.json';
 
 const {width, height} = Dimensions.get('screen');
 
-const ImageUploadModal = ({
-  visible,
-  title,
-  description,
-  onClose,
-  onImageUpload,
-}) => {
+const ReceiptUploadModal = ({visible, onClose, onUpload}) => {
   const [loading, setLoading] = useState(false);
 
   const handleImageSelection = image => {
     if (!image) return;
     setLoading(false);
-    onImageUpload(image.path);
+    onUpload(image); // return full image object (uri, mime, etc.)
+    onClose();
   };
 
   const handlePickImage = async () => {
@@ -107,8 +97,10 @@ const ImageUploadModal = ({
             </Text>
           )}
 
-          <Text style={styles.modalText}>{title}</Text>
-          <Text style={styles.descriptionText}>{description}</Text>
+          <Text style={styles.modalText}>Upload Receipt</Text>
+          <Text style={styles.descriptionText}>
+            Choose your payment receipt from camera or gallery
+          </Text>
 
           <View style={styles.btnContainer}>
             <TouchableOpacity onPress={handleOpenCamera}>
@@ -150,7 +142,7 @@ const ImageUploadModal = ({
   );
 };
 
-export default ImageUploadModal;
+export default ReceiptUploadModal;
 
 const styles = StyleSheet.create({
   centeredView: {

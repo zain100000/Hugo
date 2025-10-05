@@ -1,6 +1,6 @@
 /**
  * Redux slice for user profile management
- * Handles fetching, updating, and deleting user data
+ * Handles fetching, updating, deleting, and listing users
  * Includes comprehensive error handling and backend message propagation
  */
 
@@ -22,9 +22,35 @@ const getToken = async rejectWithValue => {
 };
 
 /**
- * Fetch user details by ID
- * @param {string} userId - The user's unique identifier
- * @returns {Object} Success status, message, and user data from backend
+ * Fetch all users (Admin only usually)
+ * @returns {Object} Success status, message, and users array
+ */
+export const getAllUsers = createAsyncThunk(
+  'user/getAllUsers',
+  async (_, {rejectWithValue}) => {
+    try {
+      const token = await getToken(rejectWithValue);
+      const response = await axios.get(
+        `${BASE_URL}/super-admin/get-all-users`,
+        {
+          headers: {Authorization: `Bearer ${token}`},
+        },
+      );
+      const {success, message, allUsers} = response.data;
+      return {success, message, allUsers};
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || 'Failed to fetch users.';
+      return rejectWithValue({
+        message: errorMessage,
+        backendMessage: error.response?.data?.message || null,
+      });
+    }
+  },
+);
+
+/**
+ * Fetch single user by ID
  */
 export const getUser = createAsyncThunk(
   'user/getUser',
@@ -50,8 +76,6 @@ export const getUser = createAsyncThunk(
 
 /**
  * Update user profile details
- * @param {Object} params - Contains userId and formData
- * @returns {Object} Success status, message, and updated user data from backend
  */
 export const updateUser = createAsyncThunk(
   'user/updateUser',
@@ -83,8 +107,6 @@ export const updateUser = createAsyncThunk(
 
 /**
  * Delete user account
- * @param {string} userId - The user's unique identifier
- * @returns {Object} Success status and message from backend
  */
 export const deleteUser = createAsyncThunk(
   'user/deleteUser',
@@ -113,6 +135,7 @@ const userSlice = createSlice({
   name: 'user',
   initialState: {
     user: null,
+    users: [], // NEW state for all users
     loading: false,
     error: null,
     message: null,
@@ -136,6 +159,23 @@ const userSlice = createSlice({
   },
   extraReducers: builder => {
     builder
+      // --- getAllUsers ---
+      .addCase(getAllUsers.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAllUsers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.users = action.payload.allUsers;
+        state.message = action.payload.message;
+        state.backendMessage = action.payload.message;
+      })
+      .addCase(getAllUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload.message;
+        state.backendMessage = action.payload.backendMessage;
+      })
+      // --- getUser ---
       .addCase(getUser.pending, state => {
         state.loading = true;
         state.error = null;
@@ -152,6 +192,7 @@ const userSlice = createSlice({
         state.error = action.payload.message;
         state.backendMessage = action.payload.backendMessage;
       })
+      // --- updateUser ---
       .addCase(updateUser.pending, state => {
         state.loading = true;
         state.error = null;
@@ -168,6 +209,7 @@ const userSlice = createSlice({
         state.error = action.payload.message;
         state.backendMessage = action.payload.backendMessage;
       })
+      // --- deleteUser ---
       .addCase(deleteUser.pending, state => {
         state.loading = true;
         state.error = null;

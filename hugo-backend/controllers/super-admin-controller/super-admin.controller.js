@@ -495,12 +495,6 @@ exports.logoutSuperAdmin = async (req, res, next) => {
  */
 exports.getAllUsers = async (req, res) => {
   try {
-    if (!req.user || req.user.role !== "SUPERADMIN") {
-      return res
-        .status(403)
-        .json({ success: false, message: "Only super admin can have access" });
-    }
-
     const users = await User.find()
       .populate({
         path: "followers",

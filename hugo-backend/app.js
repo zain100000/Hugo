@@ -5,23 +5,37 @@ const cookieParser = require("cookie-parser");
 const http = require("http");
 require("dotenv").config();
 
+// ============================================================
+// 🔹 Socket Initializers
+// ============================================================
 const { initializeSocket } = require("./utilities/socket/socket.utlity.js");
 const {
   initializeClubSocket,
-} = require("./controllers/club-controller/club.controller.js"); // ⬅️ import your new club socket
+} = require("./controllers/club-controller/club.controller.js");
+const {
+  initializeChatSocket,
+} = require("./controllers/chat-controller/chat.controller.js");
 
 const { securityMiddleware } = require("./middlewares/security.middleware");
 
 const app = express();
 const server = http.createServer(app);
 
-// Initialize main socket
+// ============================================================
+// 🔹 Initialize Base Socket.IO Server
+// ============================================================
+console.log("🧠 Initializing Socket.IO...");
 const io = initializeSocket(server);
 
-// Initialize club socket with the same io instance
-initializeClubSocket(io); // ⬅️ add this line
+// Attach additional namespaces/features
+console.log("🎯 Attaching club and chat sockets...");
+initializeClubSocket(io);
+initializeChatSocket(io);
+console.log("✅ All socket modules initialized successfully!");
 
-// ==================== BASE MIDDLEWARES ====================
+// ============================================================
+// 🔹 Core Middlewares
+// ============================================================
 securityMiddleware(app);
 app.use(cookieParser());
 app.use(express.json({ limit: "20kb" }));
@@ -35,6 +49,7 @@ const corsOptions = {
   credentials: true,
   optionsSuccessStatus: 201,
 };
+
 app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
@@ -57,7 +72,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// ==================== BASE API ROUTES ====================
+// ============================================================
+// 🔹 API ROUTES
+// ============================================================
 const superAdminRoute = require("./routes/super-admin-route/super-admin.route.js");
 const userRoute = require("./routes/user-route/user.route.js");
 const otpRoute = require("./routes/otp-route/otp.route.js");
@@ -74,58 +91,68 @@ app.use("/api/coin-package", coinPackageRoute);
 app.use("/api/transaction", transactionRoute);
 app.use("/api/follow", followerRoute);
 
-// ==================== SERVER HEALTH ====================
+// ============================================================
+// 🔹 HEALTH CHECKS
+// ============================================================
 app.get("/api/health", (req, res) => {
-  res.status(201).json({
+  res.status(200).json({
     success: true,
-    message: "Server is running healthy",
+    message: "Server is healthy 🩺",
     timestamp: new Date().toISOString(),
   });
 });
 
 app.get("/", (req, res) => {
-  res.status(201).json({
+  res.status(200).json({
     success: true,
-    message: "Backend is running properly",
+    message: "Backend running successfully 🚀",
   });
 });
 
+// 404 Handler
 app.use((req, res) => {
   res.status(404).json({ success: false, message: "API endpoint not found" });
 });
 
-// ==================== DB CONNECTION ====================
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    serverSelectionTimeoutMS: 5000,
-    socketTimeoutMS: 45000,
-  })
-  .then(() => {
-    console.log("Connected to MongoDB successfully!");
-    server.listen(process.env.PORT, () => {
-      console.log(`Server is running on port ${process.env.PORT}`);
+// ============================================================
+// 🔹 MONGODB CONNECTION + SERVER START
+// ============================================================
+const startServer = async () => {
+  try {
+    console.log("🧩 Connecting to MongoDB...");
+    await mongoose.connect(process.env.MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
     });
-  })
-  .catch((err) => {
-    console.error("Error connecting to MongoDB:", err);
+    console.log("✅ Connected to MongoDB successfully!");
+
+    const PORT = process.env.PORT || 8080;
+    server.listen(PORT, () => {
+      console.log(`🚀 Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("❌ Error connecting to MongoDB:", error);
     process.exit(1);
-  });
+  }
+};
 
-// ==================== CLEANUP ====================
-process.on("SIGINT", () => {
-  console.log("SIGINT received. Shutting down gracefully");
-  mongoose.connection.close(() => {
-    console.log("MongoDB connection closed");
-    process.exit(0);
-  });
-});
+startServer();
 
-process.on("SIGTERM", () => {
-  console.log("SIGTERM received. Shutting down gracefully");
+// ============================================================
+// 🔹 GRACEFUL SHUTDOWN HANDLERS
+// ============================================================
+const shutdown = (signal) => {
+  console.log(`⚙️  ${signal} received. Shutting down gracefully...`);
   mongoose.connection.close(() => {
-    console.log("MongoDB connection closed");
-    process.exit(0);
+    console.log("🧹 MongoDB connection closed.");
+    server.close(() => {
+      console.log("🧤 HTTP server closed. Goodbye 👋");
+      process.exit(0);
+    });
   });
-});
+};
+
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
 
 module.exports = app;

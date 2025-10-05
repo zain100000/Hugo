@@ -19,7 +19,7 @@ import {theme} from '../../styles/theme';
 const {width, height} = Dimensions.get('screen');
 const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
-const CustomModal = ({visible, onClose, title, contentList}) => {
+const CustomModal = ({visible, onClose, title, contentList = []}) => {
   const slideAnim = useRef(new Animated.Value(height)).current;
   const backdropAnim = useRef(new Animated.Value(0)).current;
   const contentOpacity = useRef(new Animated.Value(0)).current;
@@ -76,15 +76,14 @@ const CustomModal = ({visible, onClose, title, contentList}) => {
     outputRange: [0, 0.5],
   });
 
-  const jazzCashIcon = contentList.find(item => item.id === 'JazzCash')?.icon;
-  const easyPaisaIcon = contentList.find(item => item.id === 'EasyPaisa')?.icon;
-
   return (
     <Modal transparent visible={visible} onRequestClose={onClose}>
+      {/* Background overlay */}
       <TouchableWithoutFeedback onPress={onClose}>
         <Animated.View style={[styles.overlay, {opacity: backdropOpacity}]} />
       </TouchableWithoutFeedback>
 
+      {/* Bottom Sheet Modal */}
       <AnimatedLinearGradient
         colors={[theme.colors.primary, theme.colors.secondary]}
         start={{x: 0, y: 0}}
@@ -102,7 +101,7 @@ const CustomModal = ({visible, onClose, title, contentList}) => {
             ],
           },
         ]}>
-        {/* Close Icon */}
+        {/* Close Button */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} style={styles.closeButton}>
             <Feather name="x" size={24} color={theme.colors.error} />
@@ -116,28 +115,25 @@ const CustomModal = ({visible, onClose, title, contentList}) => {
           <ScrollView
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}>
-            {/* Payment Info Banner */}
-            <View style={styles.paymentInfoBanner}>
-              <View style={styles.paymentIconsContainer}>
-                {jazzCashIcon && (
-                  <Image
-                    source={jazzCashIcon}
-                    style={styles.paymentInfoIcon}
-                    resizeMode="contain"
-                  />
-                )}
-                {easyPaisaIcon && (
-                  <Image
-                    source={easyPaisaIcon}
-                    style={styles.paymentInfoIcon}
-                    resizeMode="contain"
-                  />
-                )}
+            {/* Rules List */}
+            {contentList.map((rule, idx) => (
+              <View key={rule.id || idx} style={styles.item}>
+                <Feather
+                  name="check-circle"
+                  size={20}
+                  color="#00E676"
+                  style={{marginRight: 10}}
+                />
+                <Text style={styles.ruleText}>{rule.text}</Text>
               </View>
+            ))}
+
+            {/* Payment Info Banner (optional) */}
+            <View style={styles.paymentInfoBanner}>
               <Text style={styles.paymentInfoText}>
-                JazzCash and EasyPaisa aren't connected to our app just yet —
-                but no worries! You can still make your payment manually through
-                the official apps.
+                ⚠ JazzCash and EasyPaisa and Payoneer aren't connected to our
+                app just yet — but no worries! You can still make your payment
+                manually through the official apps.
               </Text>
             </View>
           </ScrollView>
@@ -164,11 +160,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    height: height * 0.5,
+    height: height * 0.55,
     borderTopLeftRadius: theme.borderRadius.large,
     borderTopRightRadius: theme.borderRadius.large,
     paddingHorizontal: width * 0.05,
-    paddingTop: height * 0.03,
+    paddingTop: height * 0.02,
     overflow: 'hidden',
   },
 
@@ -181,7 +177,7 @@ const styles = StyleSheet.create({
     width: width * 0.08,
     height: width * 0.08,
     borderRadius: width * 0.04,
-    backgroundColor: 'rgba(255,255,255,0.85)',
+    backgroundColor: 'rgba(255,255,255,0.9)',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
@@ -199,29 +195,32 @@ const styles = StyleSheet.create({
     fontFamily: theme.typography.montserrat.bold,
     color: theme.colors.white,
     marginBottom: height * 0.02,
+    textAlign: 'center',
   },
 
   content: {
     paddingBottom: height * 0.02,
   },
 
-  paymentInfoBanner: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: theme.borderRadius.medium,
-    padding: width * 0.04,
-    marginBottom: height * 0.03,
-  },
-
-  paymentIconsContainer: {
+  item: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    alignItems: 'flex-start',
     marginBottom: height * 0.015,
   },
 
-  paymentInfoIcon: {
-    width: width * 0.12,
-    height: height * 0.06,
-    marginHorizontal: width * 0.02,
+  ruleText: {
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.montserrat.regular,
+    color: '#fff',
+    lineHeight: 20,
+    flex: 1,
+  },
+
+  paymentInfoBanner: {
+    marginTop: height * 0.02,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: theme.borderRadius.medium,
+    padding: width * 0.04,
   },
 
   paymentInfoText: {
@@ -230,21 +229,5 @@ const styles = StyleSheet.create({
     color: '#E0E0E0',
     textAlign: 'center',
     lineHeight: 18,
-  },
-
-  item: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: height * 0.018,
-  },
-
-  icon: {
-    width: width * 0.08,
-    height: height * 0.04,
-    marginRight: width * 0.04,
-  },
-
-  textContainer: {
-    flex: 1,
   },
 });

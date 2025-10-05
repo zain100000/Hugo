@@ -67,12 +67,15 @@ router.post(
 /**
  * @description Route to fetch all app users.
  */
-router.get("/get-all-users", authMiddleware, superAdminController.getAllUsers);
-
+router.get("/get-all-users", superAdminController.getAllUsers);
 
 /**
  * @description Route to update user status.
  */
-router.patch("/user/update-user-status/:userId", authMiddleware, superAdminController.updateUserStatus);
+router.patch(
+  "/user/update-user-status/:userId",
+  authMiddleware,
+  superAdminController.updateUserStatus
+);
 
 module.exports = router;

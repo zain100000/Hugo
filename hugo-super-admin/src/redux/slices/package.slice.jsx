@@ -36,7 +36,7 @@ export const getPackages = createAsyncThunk(
     if (!token) return rejectWithValue("Admin is not authenticated.");
     try {
       const response = await axios.get(
-        `${BACKEND_API_URL}/coin-package/super-admin/get-all-packages`,
+        `${BACKEND_API_URL}/coin-package/get-all-packages`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       return response.data;

@@ -24,10 +24,13 @@ import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {theme} from '../../styles/theme';
 import {globalStyles} from '../../styles/globalStyles';
+import {initializeSocket} from '../../utils/customSocket/Socket.utility';
+import { useDispatch } from 'react-redux';
 
 const {width, height} = Dimensions.get('screen');
 
 const Splash = () => {
+  const dispatch = useDispatch();
   const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
   const [animationStage, setAnimationStage] = useState(1);
@@ -50,20 +53,33 @@ const Splash = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        await new Promise(resolve => setTimeout(resolve, 3500));
+        await new Promise(resolve => setTimeout(resolve, 3000));
         const token = await AsyncStorage.getItem('authToken');
+
         if (token) {
-          navigation.reset({index: 0, routes: [{name: 'Main'}]});
+          initializeSocket(token);
+
+          navigation.reset({
+            index: 0,
+            routes: [{name: 'Main'}],
+          });
         } else {
-          navigation.reset({index: 0, routes: [{name: 'OnBoard'}]});
+          navigation.reset({
+            index: 0,
+            routes: [{name: 'OnBoard'}],
+          });
         }
       } catch (error) {
-      } finally {
-        setLoading(false);
+        console.error('Session check error:', error);
+        navigation.reset({
+          index: 0,
+          routes: [{name: 'OnBoard'}],
+        });
       }
     };
+
     checkSession();
-  }, []);
+  }, [navigation, dispatch]);
 
   useEffect(() => {
     const animateWave = (animatedVal, delay = 0) => {

@@ -5,7 +5,7 @@
  */
 const CONFIG = {
   // BASE_URL: 'https://hugo-backend-f1t6.onrender.com/api',
-  BASE_URL: 'http://192.168.1.5:8000/api',
+  BASE_URL: 'http://192.168.1.4:8000/api',
 };
 
 export default CONFIG;
