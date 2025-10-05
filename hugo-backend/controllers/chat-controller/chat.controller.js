@@ -181,7 +181,7 @@ exports.initializeChatSocket = (io) => {
           if (!user || user.coins <= 0)
             return sendError(socket, "Not enough coins");
 
-          user.coins -= 1;
+          user.coins -= 40;
           await user.save();
 
           const newMessage = {

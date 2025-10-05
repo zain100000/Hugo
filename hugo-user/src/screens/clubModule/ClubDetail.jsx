@@ -110,7 +110,10 @@ const ClubDetail = () => {
 
   const renderMessage = ({item}) => {
     const senderId =
-      item?.sender?._id || item?.sender?.id || item?.sender?.$oid || item?.sender;
+      item?.sender?._id ||
+      item?.sender?.id ||
+      item?.sender?.$oid ||
+      item?.sender;
     const isUser = senderId === currentUserId;
 
     return (
@@ -222,20 +225,86 @@ export default ClubDetail;
 const styles = StyleSheet.create({
   gradientContainer: {flex: 1},
   container: {flex: 1},
-  messagesContainer: {flexGrow: 1, padding: height * 0.02, paddingBottom: height * 0.1},
-  messageBubble: {maxWidth: width * 0.75, padding: height * 0.018, borderRadius: theme.borderRadius.large, marginBottom: height * 0.015},
-  userMessage: {alignSelf: 'flex-end', backgroundColor: theme.colors.primary, borderBottomRightRadius: 0},
-  otherMessage: {alignSelf: 'flex-start', backgroundColor: theme.colors.white, borderBottomLeftRadius: 0, borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)'},
-  userMessageText: {fontSize: theme.typography.fontSize.sm, fontFamily: theme.typography.montserrat.regular, color: theme.colors.white},
-  otherMessageText: {fontSize: theme.typography.fontSize.sm, fontFamily: theme.typography.montserrat.regular, color: theme.colors.dark},
-  messageTime: {fontSize: theme.typography.fontSize.xs, alignSelf: 'flex-end', marginTop: 4, fontFamily: theme.typography.montserrat.semiBold},
-  emptyContainer: {flex: 1, justifyContent: 'center', alignItems: 'center', gap: theme.gap(1)},
-  emptyText: {fontSize: theme.typography.fontSize.md, color: theme.colors.white, fontFamily: theme.typography.montserrat.semiBold, marginTop: height * 0.02},
-  emptySubtext: {fontSize: theme.typography.fontSize.sm, color: theme.colors.gray, fontFamily: theme.typography.montserrat.regular},
-  inputWrapper: {flexDirection: 'row', alignItems: 'center', padding: height * 0.015, borderTopWidth: 2, borderTopColor: 'rgba(255,255,255,0.2)', backgroundColor: 'rgba(255,255,255,0.9)'},
+  messagesContainer: {
+    flexGrow: 1,
+    padding: height * 0.02,
+    paddingBottom: height * 0.1,
+  },
+  messageBubble: {
+    maxWidth: width * 0.75,
+    padding: height * 0.018,
+    borderRadius: theme.borderRadius.large,
+    marginBottom: height * 0.015,
+  },
+  userMessage: {
+    alignSelf: 'flex-end',
+    backgroundColor: theme.colors.primary,
+    borderBottomRightRadius: 0,
+  },
+  otherMessage: {
+    alignSelf: 'flex-start',
+    backgroundColor: theme.colors.white,
+    borderBottomLeftRadius: 0,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
+  },
+  userMessageText: {
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.montserrat.regular,
+    color: theme.colors.white,
+  },
+  otherMessageText: {
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.montserrat.regular,
+    color: theme.colors.dark,
+  },
+  messageTime: {
+    fontSize: theme.typography.fontSize.xs,
+    alignSelf: 'flex-end',
+    marginTop: 4,
+    fontFamily: theme.typography.montserrat.semiBold,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: theme.gap(1),
+  },
+  emptyText: {
+    fontSize: theme.typography.fontSize.md,
+    color: theme.colors.white,
+    fontFamily: theme.typography.montserrat.semiBold,
+    marginTop: height * 0.02,
+  },
+  emptySubtext: {
+    fontSize: theme.typography.fontSize.sm,
+    color: theme.colors.gray,
+    fontFamily: theme.typography.montserrat.regular,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: height * 0.015,
+    borderTopWidth: 2,
+    borderTopColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.9)',
+  },
   inputContainer: {flex: 1, marginRight: width * 0.03},
   inputField: {borderRadius: theme.borderRadius.circle},
-  sendButton: {width: width * 0.12, height: width * 0.12, borderRadius: theme.borderRadius.circle, backgroundColor: theme.colors.primary, justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: {width: 0, height: 2}, shadowOpacity: 0.3, shadowRadius: 2, elevation: 5, marginBottom: height * 0.002},
+  sendButton: {
+    width: width * 0.12,
+    height: width * 0.12,
+    borderRadius: theme.borderRadius.circle,
+    backgroundColor: theme.colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
+    elevation: 5,
+    marginBottom: height * 0.002,
+  },
   sendButtonDisabled: {backgroundColor: theme.colors.gray, opacity: 0.7},
   loaderContainer: {flex: 1, justifyContent: 'center', alignItems: 'center'},
 });

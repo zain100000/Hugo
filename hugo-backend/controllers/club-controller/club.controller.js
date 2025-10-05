@@ -356,7 +356,7 @@ exports.initializeClubSocket = (io) => {
             return sendError(socket, "Not enough coins to send message");
           }
 
-          user.coins -= 1;
+          user.coins -= 40;
           await user.save();
 
           // Create a new embedded message object with sentAt timestamp
