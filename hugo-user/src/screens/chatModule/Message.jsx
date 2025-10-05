@@ -1,3 +1,15 @@
+/**
+ * @file Message.js
+ * @description Chat message screen with animated UI, gradient background, and live socket messaging.
+ * @version 2.1
+ * @features
+ * - Fetches current user from Redux (auth.user)
+ * - Sender messages on right, receiver messages on left
+ * - Smooth animations for new messages and empty states
+ * - Real-time messaging using Socket Manager
+ * - Message read + delete functionality
+ */
+
 import React, {useEffect, useState, useRef} from 'react';
 import {
   View,
@@ -8,15 +20,17 @@ import {
   Animated,
   Easing,
   Dimensions,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
 } from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useRoute} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
 import LinearGradient from 'react-native-linear-gradient';
-import Feather from 'react-native-vector-icons/Feather';
-import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {theme} from '../../styles/theme';
 import socketManager from '../../utils/customSocket/Socket.Manager.utility';
 import * as socketActions from '../../utils/customSocket/socketActions/Socket.Actions.utility';
-import {globalStyles} from '../../styles/globalStyles';
 import InputField from '../../utils/customComponents/customInputField/InputField';
 import Loader from '../../utils/customComponents/customLoader/Loader';
 import MessageHeader from '../../utils/customComponents/customHeader/MessageHeader';
@@ -25,8 +39,11 @@ const {width, height} = Dimensions.get('screen');
 
 const Message = () => {
   const route = useRoute();
-  const navigation = useNavigation();
-  const {userId, userName, profilePicture} = route.params;
+  const {targetUserId: userId, userName, profilePicture} = route.params;
+
+  const currentUser = useSelector(state => state.auth?.user);
+  const currentUserId =
+    currentUser?._id || currentUser?.id || currentUser?.userId || null;
 
   const [messages, setMessages] = useState([]);
   const [messageText, setMessageText] = useState('');
@@ -35,30 +52,30 @@ const Message = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const bounceAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.95)).current;
 
-  // 🔹 Animate "No messages" view
+  // 🔹 Animate empty chat state
   useEffect(() => {
     if (!isLoading && messages.length === 0) {
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
-          duration: 800,
+          duration: 700,
           easing: Easing.out(Easing.ease),
           useNativeDriver: true,
         }),
         Animated.loop(
           Animated.sequence([
-            Animated.timing(bounceAnim, {
-              toValue: -10,
+            Animated.timing(scaleAnim, {
+              toValue: 1.05,
               duration: 500,
-              easing: Easing.inOut(Easing.quad),
+              easing: Easing.inOut(Easing.ease),
               useNativeDriver: true,
             }),
-            Animated.timing(bounceAnim, {
-              toValue: 0,
+            Animated.timing(scaleAnim, {
+              toValue: 0.95,
               duration: 500,
-              easing: Easing.inOut(Easing.quad),
+              easing: Easing.inOut(Easing.ease),
               useNativeDriver: true,
             }),
           ]),
@@ -66,91 +83,57 @@ const Message = () => {
       ]).start();
     } else {
       fadeAnim.setValue(0);
-      bounceAnim.setValue(0);
+      scaleAnim.setValue(0.95);
     }
   }, [messages, isLoading]);
 
-  // 🔹 Initialize socket & fetch chat/messages
+  // 🔹 Initialize socket and listeners
   useEffect(() => {
-    console.log('🟡 Initializing socket connection...');
-    if (!socketManager.isConnected()) {
-      console.log('🧩 Socket not connected → initializing...');
-      socketManager.initialize();
-    } else {
-      console.log('✅ Socket already connected.');
-    }
-
+    if (!socketManager.isConnected()) socketManager.initialize();
     const socket = socketManager.socket;
-    if (!socket) {
-      console.log('❌ Socket instance not found!');
-      return;
-    }
+    if (!socket) return;
 
     setIsConnected(true);
 
-    // 🔹 Listen when chat is created or found
     socketActions.listenToChatCreated(data => {
-      console.log(
-        '✅ [CHAT_CREATED] event received:',
-        JSON.stringify(data, null, 2),
-      );
       if (data?.chat) {
-        console.log('📌 Setting chatId:', data.chat._id);
         setCurrentChatId(data.chat._id);
-
-        console.log('📤 Requesting message history for chatId:', data.chat._id);
         socketActions.getMessageHistory({chatId: data.chat._id});
-      } else {
-        console.log('⚠️ No chat object found in CHAT_CREATED payload!');
       }
       setIsLoading(false);
     });
 
-    // 🔹 Listen for message history
     socketActions.listenToMessageHistory(data => {
-      console.log(
-        '📥 [MESSAGE_HISTORY] event received:',
-        JSON.stringify(data, null, 2),
-      );
       if (data?.messages?.length) {
-        console.log(`✅ Loaded ${data.messages.length} messages.`);
         setMessages(data.messages);
-      } else {
-        console.log('⚠️ No messages found in MESSAGE_HISTORY payload!');
+        markAllAsRead(data.messages);
       }
       setIsLoading(false);
     });
 
-    // 🔹 Listen for new messages
     socketActions.listenToNewMessage(data => {
-      console.log(
-        '📩 [NEW_MESSAGE] event received:',
-        JSON.stringify(data, null, 2),
-      );
       if (data?.message) {
-        console.log('📩 Appending new message to list.');
+        Animated.sequence([
+          Animated.timing(scaleAnim, {
+            toValue: 1.05,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+          Animated.timing(scaleAnim, {
+            toValue: 1,
+            duration: 150,
+            useNativeDriver: true,
+          }),
+        ]).start();
         setMessages(prev => [...prev, data.message]);
-      } else {
-        console.log('⚠️ No message object found in NEW_MESSAGE payload!');
+        markAllAsRead([data.message]);
       }
     });
 
-    // 🔹 Listen for chat errors
-    socketActions.listenToChatError(error => {
-      console.log(
-        '🚨 [CHAT_ERROR] event received:',
-        JSON.stringify(error, null, 2),
-      );
-      setIsLoading(false);
-    });
-
-    // 🔹 Create or get existing chat
-    console.log('📤 Emitting CREATE_CHAT event with:', {otherUserId: userId});
+    socketActions.listenToChatError(() => setIsLoading(false));
     socketActions.createChat({otherUserId: userId});
 
-    // 🔹 Cleanup listeners
     return () => {
-      console.log('🧹 Cleaning up all socket listeners...');
       socketActions.removeChatCreatedListener();
       socketActions.removeMessageHistoryListener();
       socketActions.removeNewMessageListener();
@@ -158,61 +141,108 @@ const Message = () => {
     };
   }, [userId]);
 
-  // 🔹 Send message
-  const onSendMessage = () => {
-    if (!messageText.trim() || !currentChatId || !isConnected) {
-      console.log('⚠️ Cannot send message — missing field:', {
-        messageText,
-        currentChatId,
-        isConnected,
+  // 🔹 Mark all received messages as read
+  const markAllAsRead = msgs => {
+    if (!currentChatId || !msgs?.length) return;
+    const unreadMessageIds = msgs
+      .filter(m => {
+        const senderId =
+          m?.sender?._id || m?.sender?.id || m?.sender?.$oid || m?.sender;
+        return senderId !== currentUserId && !m?.isRead;
+      })
+      .map(m => m._id || m.id);
+    if (unreadMessageIds.length > 0) {
+      socketActions.markMessageAsRead({
+        chatId: currentChatId,
+        messageIds: unreadMessageIds,
       });
-      return;
     }
-
-    const messageData = {
-      chatId: currentChatId,
-      text: messageText.trim(),
-      type: 'TEXT',
-    };
-
-    console.log('📤 Emitting SEND_MESSAGE event with:', messageData);
-    socketActions.sendMessage(messageData);
-
-    setMessageText('');
   };
 
-  // 🔹 Render individual message
-  const renderMessage = ({item, index}) => {
-    console.log(`🧾 Rendering message #${index + 1}:`, item);
-    const isUser = item?.sender === userId || item?.sender?._id === userId;
-    return (
-      <View
-        style={[
-          styles.messageBubble,
-          isUser ? styles.userMessage : styles.otherMessage,
-        ]}>
-        <Text style={isUser ? styles.userMessageText : styles.otherMessageText}>
-          {item.text}
-        </Text>
-        <Text style={styles.messageTime}>
-          {new Date(item.sentAt).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit',
-          })}
-        </Text>
-      </View>
+  // 🔹 Delete message (only for current user)
+  const onDeleteMessage = messageId => {
+    if (!currentChatId) return;
+    Alert.alert(
+      'Delete Message',
+      'Are you sure you want to delete this message?',
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            socketActions.deleteMessage({chatId: currentChatId, messageId});
+            setMessages(prev => prev.filter(msg => msg._id !== messageId));
+          },
+        },
+      ],
     );
   };
 
-  console.log('🟢 Current Messages State:', messages);
-  console.log('💬 Current Chat ID:', currentChatId);
+  // 🔹 Send a new message
+  const onSendMessage = () => {
+    if (!messageText.trim() || !currentChatId || !isConnected) return;
+    socketActions.sendMessage({
+      chatId: currentChatId,
+      text: messageText.trim(),
+      type: 'TEXT',
+    });
+    setMessageText('');
+  };
+
+  // 🔹 Render each message bubble
+  const renderMessage = ({item}) => {
+    const senderId =
+      item?.sender?.$oid ||
+      item?.sender?._id ||
+      item?.sender?.id ||
+      item?.sender ||
+      null;
+
+    const isUser = senderId === currentUserId;
+
+    return (
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onLongPress={() => isUser && onDeleteMessage(item._id)}>
+        <Animated.View
+          style={[
+            styles.messageBubble,
+            isUser ? styles.userMessage : styles.otherMessage,
+            {transform: [{scale: scaleAnim}]},
+          ]}>
+          <Text
+            style={isUser ? styles.userMessageText : styles.otherMessageText}>
+            {item.text}
+          </Text>
+          <Text
+            style={[
+              styles.messageTime,
+              {color: isUser ? 'rgba(255,255,255,0.7)' : theme.colors.gray},
+            ]}>
+            {new Date(item.sentAt?.$date || item.sentAt).toLocaleTimeString(
+              [],
+              {hour: '2-digit', minute: '2-digit'},
+            )}
+            {isUser && item.isRead ? ' ✓✓' : ''}
+          </Text>
+        </Animated.View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <LinearGradient
       colors={[theme.colors.primary, theme.colors.tertiary]}
       style={styles.gradientContainer}>
-      <View style={globalStyles.container}>
-        <MessageHeader userName={userName} profilePicture={profilePicture} />
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <MessageHeader
+          userName={userName}
+          profilePicture={profilePicture}
+          isConnected={isConnected}
+        />
 
         {isLoading ? (
           <View style={styles.loaderContainer}>
@@ -231,17 +261,17 @@ const Message = () => {
           <Animated.View
             style={[
               styles.emptyContainer,
-              {
-                opacity: fadeAnim,
-                transform: [{translateY: bounceAnim}],
-              },
+              {opacity: fadeAnim, transform: [{scale: scaleAnim}]},
             ]}>
-            <Feather
-              name="message-circle"
+            <MaterialCommunityIcons
+              name="message-off"
               size={width * 0.24}
-              color={theme.colors.tertiary}
+              color={theme.colors.white}
             />
             <Text style={styles.emptyText}>No messages yet</Text>
+            <Text style={styles.emptySubtext}>
+              Start a chat and send your first message!
+            </Text>
           </Animated.View>
         )}
 
@@ -254,84 +284,132 @@ const Message = () => {
               placeholderTextColor={theme.colors.gray}
               editable={isConnected}
               leftIcon={
-                <Feather
-                  name={'message-circle'}
-                  size={width * 0.044}
+                <MaterialCommunityIcons
+                  name="message"
+                  size={width * 0.045}
                   color={theme.colors.primary}
                 />
               }
+              style={styles.inputField}
             />
           </View>
 
           <TouchableOpacity
             style={[
               styles.sendButton,
-              !isConnected || !messageText.trim() ? {opacity: 0.5} : {},
+              !isConnected || !messageText.trim()
+                ? styles.sendButtonDisabled
+                : null,
             ]}
             onPress={onSendMessage}
             disabled={!isConnected || !messageText.trim()}>
-            <FontAwesome6
-              name="paper-plane"
+            <MaterialCommunityIcons
+              name="send"
               size={width * 0.06}
               color={theme.colors.white}
             />
           </TouchableOpacity>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </LinearGradient>
   );
 };
 
 export default Message;
 
-// 🎨 Styles remain same
 const styles = StyleSheet.create({
-  gradientContainer: {flex: 1},
-  messagesContainer: {flexGrow: 1, padding: height * 0.02},
+  gradientContainer: {
+    flex: 1,
+  },
+
+  container: {
+    flex: 1,
+  },
+
+  messagesContainer: {
+    flexGrow: 1,
+    padding: height * 0.02,
+    paddingBottom: height * 0.1,
+  },
+
   messageBubble: {
-    maxWidth: width * 0.8,
-    padding: height * 0.015,
+    maxWidth: width * 0.75,
+    padding: height * 0.018,
     borderRadius: theme.borderRadius.large,
     marginBottom: height * 0.015,
   },
+
   userMessage: {
     alignSelf: 'flex-end',
     backgroundColor: theme.colors.primary,
     borderBottomRightRadius: 0,
   },
+
   otherMessage: {
     alignSelf: 'flex-start',
     backgroundColor: theme.colors.white,
     borderBottomLeftRadius: 0,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.05)',
   },
+
   userMessageText: {
     fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.montserrat.regular,
     color: theme.colors.white,
   },
+
   otherMessageText: {
     fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.montserrat.regular,
     color: theme.colors.dark,
   },
+
   messageTime: {
     fontSize: theme.typography.fontSize.xs,
-    color: theme.colors.gray,
     alignSelf: 'flex-end',
+    marginTop: 4,
+    fontFamily: theme.typography.montserrat.semiBold,
   },
-  emptyContainer: {flex: 1, justifyContent: 'center', alignItems: 'center'},
+
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: theme.gap(1),
+  },
+
   emptyText: {
     fontSize: theme.typography.fontSize.md,
-    color: theme.colors.tertiary,
+    color: theme.colors.white,
+    fontFamily: theme.typography.montserrat.semiBold,
     marginTop: height * 0.02,
   },
+
+  emptySubtext: {
+    fontSize: theme.typography.fontSize.sm,
+    color: theme.colors.gray,
+    fontFamily: theme.typography.montserrat.regular,
+  },
+
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: height * 0.01,
+    padding: height * 0.015,
     borderTopWidth: 2,
-    borderTopColor: 'rgba(219, 166, 96, 1)',
-    backgroundColor: 'rgba(236, 193, 136, 0.8)',
+    borderTopColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255,255,255,0.9)',
   },
-  inputContainer: {flex: 1, marginRight: width * 0.02},
+
+  inputContainer: {
+    flex: 1,
+    marginRight: width * 0.03,
+  },
+
+  inputField: {
+    borderRadius: theme.borderRadius.circle,
+  },
+
   sendButton: {
     width: width * 0.12,
     height: width * 0.12,
@@ -339,7 +417,22 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
     elevation: 5,
+    marginBottom: height * 0.002,
   },
-  loaderContainer: {flex: 1, justifyContent: 'center', alignItems: 'center'},
+
+  sendButtonDisabled: {
+    backgroundColor: theme.colors.gray,
+    opacity: 0.7,
+  },
+
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });

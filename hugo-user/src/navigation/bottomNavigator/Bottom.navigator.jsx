@@ -19,7 +19,7 @@ import {theme} from '../../styles/theme';
 // Screens
 import Home from '../../screens/homeModule/Home';
 import Club from '../../screens/clubModule/Club';
-import Chat from '../../screens/chatModule/Chat';
+import Chat from '../../screens/chatModule/ChatLists';
 import Profile from '../../screens/profileModule/Profile';
 
 const Tab = createBottomTabNavigator();

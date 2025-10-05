@@ -344,7 +344,7 @@ const UserDetail = () => {
           <TouchableOpacity
             onPress={() =>
               navigation.navigate('Message', {
-                userId: user?._id, // send the target user ID
+                targetUserId: user?._id, // Change from userId to targetUserId
                 userName: user?.userName,
                 profilePicture: user?.profilePicture,
               })

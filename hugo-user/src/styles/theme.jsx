@@ -14,6 +14,7 @@ export const theme = {
     white: '#ffffff',
     dark: '#000000',
     gray: '#dde0e5',
+    lightGray: '#f5f5f5'
   },
 
   typography: {
