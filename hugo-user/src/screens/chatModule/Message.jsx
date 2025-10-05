@@ -54,7 +54,7 @@ const Message = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.95)).current;
 
-  // 🔹 Animate empty chat state
+  // Animate empty chat state
   useEffect(() => {
     if (!isLoading && messages.length === 0) {
       Animated.parallel([
@@ -87,7 +87,7 @@ const Message = () => {
     }
   }, [messages, isLoading]);
 
-  // 🔹 Initialize socket and listeners
+  // Initialize socket and listeners
   useEffect(() => {
     if (!socketManager.isConnected()) socketManager.initialize();
     const socket = socketManager.socket;
@@ -95,6 +95,7 @@ const Message = () => {
 
     setIsConnected(true);
 
+    // Chat created
     socketActions.listenToChatCreated(data => {
       if (data?.chat) {
         setCurrentChatId(data.chat._id);
@@ -103,6 +104,7 @@ const Message = () => {
       setIsLoading(false);
     });
 
+    // Message history
     socketActions.listenToMessageHistory(data => {
       if (data?.messages?.length) {
         setMessages(data.messages);
@@ -111,6 +113,7 @@ const Message = () => {
       setIsLoading(false);
     });
 
+    // New message
     socketActions.listenToNewMessage(data => {
       if (data?.message) {
         Animated.sequence([
@@ -125,23 +128,54 @@ const Message = () => {
             useNativeDriver: true,
           }),
         ]).start();
+
         setMessages(prev => [...prev, data.message]);
         markAllAsRead([data.message]);
       }
     });
 
+    // Message read updates
+    socketActions.listenToMessageRead(data => {
+      const {messageId, readerId} = data;
+      if (!messageId) return;
+      setMessages(prev =>
+        prev.map(msg =>
+          msg._id === messageId
+            ? {
+                ...msg,
+                isRead: true,
+                readBy: [...(msg.readBy || []), {user: readerId}],
+              }
+            : msg,
+        ),
+      );
+    });
+
+    // Message deleted updates
+    socketActions.listenToMessageDeleted(data => {
+      const {messageId} = data;
+      if (!messageId) return;
+      setMessages(prev => prev.filter(msg => msg._id !== messageId));
+    });
+
+    // Handle errors
     socketActions.listenToChatError(() => setIsLoading(false));
+
+    // Create chat
     socketActions.createChat({otherUserId: userId});
 
+    // Cleanup
     return () => {
       socketActions.removeChatCreatedListener();
       socketActions.removeMessageHistoryListener();
       socketActions.removeNewMessageListener();
+      socketActions.removeMessageReadListener();
+      socketActions.removeMessageDeletedListener();
       socketActions.removeChatErrorListener();
     };
   }, [userId]);
 
-  // 🔹 Mark all received messages as read
+  // Mark all received messages as read
   const markAllAsRead = msgs => {
     if (!currentChatId || !msgs?.length) return;
     const unreadMessageIds = msgs
@@ -159,7 +193,7 @@ const Message = () => {
     }
   };
 
-  // 🔹 Delete message (only for current user)
+  // Delete message (only current user)
   const onDeleteMessage = messageId => {
     if (!currentChatId) return;
     Alert.alert(
@@ -172,14 +206,13 @@ const Message = () => {
           style: 'destructive',
           onPress: () => {
             socketActions.deleteMessage({chatId: currentChatId, messageId});
-            setMessages(prev => prev.filter(msg => msg._id !== messageId));
           },
         },
       ],
     );
   };
 
-  // 🔹 Send a new message
+  // Send a new message
   const onSendMessage = () => {
     if (!messageText.trim() || !currentChatId || !isConnected) return;
     socketActions.sendMessage({
@@ -190,15 +223,13 @@ const Message = () => {
     setMessageText('');
   };
 
-  // 🔹 Render each message bubble
+  // Render each message bubble
   const renderMessage = ({item}) => {
     const senderId =
-      item?.sender?.$oid ||
       item?.sender?._id ||
       item?.sender?.id ||
-      item?.sender ||
-      null;
-
+      item?.sender?.$oid ||
+      item?.sender;
     const isUser = senderId === currentUserId;
 
     return (

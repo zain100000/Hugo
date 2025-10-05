@@ -109,24 +109,17 @@ export const listenToChatError = callback => {
 
 export const removeChatCreatedListener = () =>
   socketManager.off(CHAT_EVENTS.CHAT_CREATED);
-
 export const removeChatsListListener = () =>
   socketManager.off(CHAT_EVENTS.CHATS_LIST);
-
 export const removeNewMessageListener = () =>
   socketManager.off(CHAT_EVENTS.NEW_MESSAGE);
-
 export const removeMessageHistoryListener = () =>
   socketManager.off(CHAT_EVENTS.MESSAGE_HISTORY);
-
 export const removeMessageReadListener = () =>
   socketManager.off(CHAT_EVENTS.MESSAGE_READ);
-
 export const removeMessageDeletedListener = () =>
   socketManager.off(CHAT_EVENTS.MESSAGE_DELETED);
-
 export const removeChatDeletedListener = () =>
   socketManager.off(CHAT_EVENTS.CHAT_DELETED);
-
 export const removeChatErrorListener = () =>
   socketManager.off(CHAT_EVENTS.ERROR);
